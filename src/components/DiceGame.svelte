@@ -62,12 +62,12 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="fixed top-0 right-0 bottom-0 left-0 bg-black/[.5] flex justify-center items-center z-30">
-    <div class="border-orange-500 bg-slate-600 border rounded-lg flex flex-col p-4 m-4">
+    <div class="border-orange-500 bg-slate-600 border rounded-md flex flex-col p-4 m-4">
         <div class="flex justify-end">
             <button class="font-semibold text-lg mr-4 underline" on:click={close}>Cancel</button>
         </div>
         {#if state === "waitingRoom"}
-            <div class="bg-slate-700 rounded-lg">
+            <div class="bg-slate-700 rounded-md">
                 <div class="flex border-b">
                     <h1 class="text-2xl font-semibold text-white m-4 p-2">Game ID: {gameID}</h1>
                     <button on:click={() => state = "playing"} class="rounded-md bg-orange-500 p-2 m-4 font-semibold text-2xl text-slate-700">Play</button>
@@ -75,7 +75,7 @@
                 <div class="grid grid-cols-3 min-h-60 text-white font-semibold m-2">
                     {#if teams.length > 0}
                         {#each teams as team}
-                            <div class="border rounded-lg p-4 h-min m-2">
+                            <div class="border rounded-md p-4 h-min m-2">
                                 <h1>Team name: {team.name}</h1>
                                 {#each team.players as player}
                                     <h2 class="ml-4">{player}</h2>
@@ -88,12 +88,12 @@
                 </div>
             </div>
         {:else if state === "playing"}
-            <div class="flex my-2 py-2 text-center font-semibold bg-slate-700 rounded-lg">
+            <div class="flex my-2 py-2 text-center font-semibold bg-slate-700 rounded-md">
                 <h1 class="text-4xl text-white w-1/3">Clock: {timer / 60}:{timer % 60 > 9 ? timer % 60 : '0' + timer % 60}</h1>
                 <h1 class="text-4xl text-white w-1/3">Die 1: {die1}</h1>
                 <h1 class="text-4xl text-white w-1/3">Die 2: {die2}</h1>
             </div>
-            <div class="mt-2 bg-[url('images/woodbg.jpg')] rounded-lg grid place-content-center">
+            <div class="mt-2 bg-[url('images/woodbg.jpg')] rounded-md grid place-content-center">
                 <div class="flex justify-center p-32">
                     {#if die1 > 0 && showDice && die2 > 0}
                         <img src="images/dice/die{die1}.png" alt="die1" class="w-1/12 mr-4"

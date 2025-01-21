@@ -15,7 +15,7 @@
             if(user) {
                 let player = await dbHandler.getDoc("users", user.uid)
                 if(player) {
-                    game = player.game
+                    game = player.data().game
                 }
             }
 

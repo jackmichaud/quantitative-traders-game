@@ -54,6 +54,11 @@
       if (!user_doc_unsub) {
         user_doc_unsub = onSnapshot(doc(db, `users/${user.uid}`), (doc) => {
           const userData = doc.data();
+          //send user data to the auth store
+          authStore.update((current) => {
+            return {...current, game: userData.game}
+          });
+
           if(userData.game.gameID !== null) {
             console.log("User is in a game: " + userData.game.gameID);
             game_id = userData.game.gameID;
