@@ -11,7 +11,7 @@
     onMount(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             
-            let game = {type: "none", gameID: "", teamName: null}
+            let game = {type: "none", gameID: null, teamName: null}
             if(user) {
                 let player = await dbHandler.getDoc("users", user.uid)
                 if(player) {

@@ -6,7 +6,7 @@ import { dbHandler } from "./dataStore";
 export const authStore = writable({
     isLoading: true,
     currentUser: null,
-    game: {type: "none", gameID: "", teamName: ""}
+    game: {type: "none", gameID: null, teamName: null}
 });
 
 export const authHandler = {

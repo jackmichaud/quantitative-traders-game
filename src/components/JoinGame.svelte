@@ -1,37 +1,43 @@
 <script>
-    import { dbHandler } from "../stores/dataStore";
-    import { authHandler, authStore } from "../stores/authStore";
-    import { Timestamp, doc } from "firebase/firestore";
+    import { createEventDispatcher } from "svelte";
+    import { joinGame } from "../lib/cloud_functions";
 
-    let submitted = false
-    let gameID;
-    let teamName;
+    let game_id
+    let team_name
 
-    function handleSubmit() {
-        submitted = true
-        game = dbHandler.getDoc("games", gameID)
-        if(game.exists()) {
-            // Update user information and reference to game
-            dbHandler.updateDoc("users", $authStore.currentUser.uid, {game: {type: gameType, role: "player", reference: gameID}})
+    const teams = ["RANGERS", "ACES", "PHEONIX", "HYDRAS", "ROOKS", "OUTLAWS", "TITANS", "APEX", "VENOM", "SABRES"]
 
-            // Add user to team
-            dbHandler.updateDoc("games", gameID, {teams: [...game.data().teams, {name: teamName, players: [...game.data().teams[game.data().teams.length - 1].players, $authStore.currentUser.uid]}]})
+    const dispatch = createEventDispatcher()
+
+
+    async function _joinGame() {
+        console.log("Joining game: " + game_id);
+        if(game_id.length > 3 && team_name.length > 3) {
+            try {
+                await joinGame({game_id, team_name});
+                console.log("Joined game: " + game_id);
+                dispatch('joinGame', {game_id, team_name})
+            } catch (error) {
+                alert(error.message);
+            }
+        } else {
+            alert("The game ID and team name must be at least 4 characters long");
         }
-
-        window.location.href='/'
     }
+
 </script>
 
-<form class="flex flex-col border rounded-md p-4 bg-slate-700 my-4">
-    <label class="text-xl">
-        Game ID:
-        <input bind:value={gameID} type="text" placeholder="Game ID" class="rounded-md my-2 text-black p-2 text-2xl"/>
-    </label>
-    <label class="text-xl">
-        Team Name:
-        <input bind:value={teamName} type="text" placeholder="Game ID" class="rounded-md my-2 text-black p-2 text-2xl"/>
-    </label>
-    {#if !submitted}
-        <button on:click={handleSubmit} class="rounded-md bg-orange-500 p-2 mt-4 text-2xl text-slate-700">Submit</button>
-    {/if}
-</form>
+<div class="basis-1/4 border-white rounded-md text-sm m-2">
+    <div class="bg-slate-700 p-2 rounded-md border flex justify-center items-center text-sm text-black font-semibold ">
+        <form class="text-sm text-white flex">
+            <select bind:value={team_name} on:change|preventDefault={()=>{}} name="teams" id="teams" class="bg-slate-700 border rounded-md p-2 text-white text-md  hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
+                {#each teams as team}
+                    <option value={team}>{team}</option>
+                {/each}
+            </select>
+            
+            <input bind:value={game_id} class="bg-slate-700 pl-2 ml-2 py-2 text-sm rounded-md border border-white text-white outline-orange-500  hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150" placeholder="Game ID"/>
+            <button on:click|preventDefault={_joinGame} class="text-white border p-2 ml-4 rounded-md  hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Join Game</button>
+        </form>
+    </div>
+</div>
