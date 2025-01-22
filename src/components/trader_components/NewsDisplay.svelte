@@ -3,6 +3,8 @@
     import { onMount } from "svelte";
     export let news = []
 
+    let isExpanded = true
+
     let seconds = 0;
 
     function tickTime() {
@@ -18,11 +20,17 @@
     tickTime()
 </script>
 
-<div class="basis-1/4 border-white border rounded-md h-full">
-    <div class="bg-slate-700 rounded-t-md border-b">
+<div class="basis-1/4 border-white border rounded-md">
+    <div class="bg-slate-700 rounded-t-md {isExpanded ? 'rounded-b-none border-b' : 'rounded-b-md'} relative">
         <h1 class="text-center text-white font-semibold py-2 text-md">News</h1>
+
+        <button 
+            on:click={() => { isExpanded = !isExpanded }} 
+            class="absolute top-1/2 right-4 -translate-y-1/2 text-white text-lg hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
+            {isExpanded ? '↑' : '↓'}
+        </button>
     </div>
-    {#if news}
+    {#if news && isExpanded}
         {#each news.toReversed() as n}
             <div class="{n.timestamp.seconds < 60 && n.timestamp.seconds !== "00" ? `bg-orange-600` : 'bg-slate-600'} rounded-md my-2 border border-dashed">
                 <div class="flex content-between">
