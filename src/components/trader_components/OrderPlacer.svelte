@@ -63,19 +63,19 @@
             {#if pendingOrder.type === 'limit'}
                 <input bind:value={pendingOrder.price} type=number min="0.00" step="0.01" maxlength="8" class="bg-slate-700 pl-2 ml-2 py-2 rounded-md border font-semibold border-white text-white outline-orange-500 text-sm hover:bg-white hover:shadow-lg hover:scale-105 transform transition-transform duration-150 hover:text-slate-700" placeholder="Price" disabled={pendingOrder.type === 'market'}/>
             {:else}
-             <h1 class="text-white font-semibold py-2 text-sm ml-2">Market</h1>
+                <h1 class="text-white font-semibold py-2 text-sm ml-2">Market</h1>
             {/if}
         </div>
     </div>
     <div class="bg-slate-700 rounded-b-md flex border-t border-dashed justify-between text-white font-semibold p-2">
         <div class="flex">
-            <h1 class="text-white font-semibold py-2 text-sm">Place Order:</h1>
+            <h1 class="text-white font-semibold py-2 text-sm mr-2">Place Order:</h1>
             {#if pendingOrder.shares !== null && (pendingOrder.shares > 1000 || pendingOrder.shares <= 0)}
-                <h1 class="ml-2 border rounded text-red-600 border-red-600 p-2 text-sm">Please enter a number of shares between 0 and 1000!</h1>
+                <h1 class="border rounded text-red-600 border-red-600 p-2 text-sm">Please enter a number of shares between 0 and 1000!</h1>
             {:else if pendingOrder.type === 'limit' && pendingOrder.price !== null && (pendingOrder.price <= 0)}
-                <h1 class="ml-2 border rounded text-red-600 border-red-600 p-2 text-sm">Please enter a price greater than 0!</h1>
+                <h1 class="border rounded text-red-600 border-red-600 p-2 text-sm">Please enter a price greater than 0!</h1>
             {:else if pendingOrder.type === 'limit' && (pendingOrder.shares * pendingOrder.price <= 0)}
-                <h1 class="ml-2 border rounded text-red-600 border-red-600 p-2 text-sm">Make sure total cost is greater than 0!</h1>
+                <h1 class="border rounded text-red-600 border-red-600 p-2 text-sm">Make sure total cost is greater than 0!</h1>
             {:else}
                 <button on:click|preventDefault={handleOrder} class="bg-orange-500 text-slate-700 font-semibold w-32 text-sm rounded-md">Place Order</button>
             {/if}
