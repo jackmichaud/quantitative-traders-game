@@ -69,8 +69,8 @@
             {/if}
 
             {#if showModal === "leave"}
-                <Modal on:close={() => showModal = "closed"}>
-                    <LeaveGame/>
+                <Modal title="Leave" on:close={() => showModal = "closed"}>
+                    <LeaveGame bind:game_id={game.gameID} on:leaveGame={() => showModal = "closed"}/>
                 </Modal>
             {/if}
 
@@ -80,7 +80,7 @@
 
             {#if showModal === "join"}
                 <Modal title="Join Game" on:close={() => showModal = "closed"} on:joinGame={() => showModal = "closed"}>
-                    <JoinGame/>
+                    <JoinGame on:joinGame={() => showModal="closed"}/>
                 </Modal>
             {/if}
 
