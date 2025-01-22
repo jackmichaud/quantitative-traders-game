@@ -185,31 +185,6 @@
     });
   }
 
-  async function _joinGame() {
-    console.log("Joining game: " + game_id);
-    if(game_id.length > 3 && team_name.length > 3 && !inGame) {
-      try {
-        await joinGame({game_id, team_name});
-        console.log("Joined game: " + game_id);
-      } catch (error) {
-        alert(error.message);
-      }
-    } else {
-      alert("The game ID and team name must be at least 4 characters long");
-    }
-  }
-
-  async function _leaveGame() {
-    console.log("Leaving game: " + game_id);
-    if(inGame) {
-      try {
-        await leaveGame({game_id});
-      } catch (error) {
-        alert(error.message);
-      }
-    }
-  }
-
   async function _placeOrder() {
     if(!inGame) {
       alert("Please join a game first");
@@ -320,7 +295,6 @@
 
 <main class="flex flex-row flex-grow">  
   <div class="basis-1/4 m-2">
-    <JoinGame bind:game_id={game_id} bind:team_name={team_name} submitted={inGame} on:joinGame={_joinGame} on:leaveGame={_leaveGame} /> 
     <MarketChart bind:chartData={market_data.meanPrice} start_time={game_data?.start_time} bind:title={current_market}/>
     <OrderBook bind:bids={market_data.buyOrders} bind:asks={market_data.sellOrders} bind:team_name={team_name}/>
   </div>

@@ -51,7 +51,7 @@
     
 </script>
 
-<header class="sticky flex py-4 items-center bg-slate-700 font-semibold text-4xl text-white border-b border-white justify-between">
+<header class="sticky flex py-2 items-center bg-slate-700 font-semibold text-4xl text-white border-b border-white justify-between">
     <button 
         on:click={() => { window.location.href = '/' }} 
         class="ml-4 text-center text-orange-500 text-4xl italic transform transition-transform duration-150 ease-in-out hover:scale-105 bg-transparent hover:shadow-lg"
