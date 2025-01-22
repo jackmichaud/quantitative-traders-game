@@ -14,13 +14,22 @@
 
     authStore.subscribe((curr) => {
         email = curr?.currentUser?.email
-        game = curr?.currentUser?.game
+        game = curr?.game
     })
 
     async function start() {
-        await startGame().catch((error) => alert(error.message))
+        let errorOccured = false;
+        await startGame().catch((error) => {alert(error.message) ; errorOccured = true})
+        if(errorOccured) return;
 
-        for(let i = 0; i < 6; i++) {    // TODO: Add a way to adjust the number of market updates
+        let numIterations = 0;
+        if(game.type == "dice") {
+            numIterations = 5;
+        } else if (game.type == "cards") {
+            numIterations = 6;
+        }
+
+        for(let i = 0; i < numIterations; i++) {  
             await new Promise(resolve => setTimeout(resolve, 60000));
 
             await updateMarket().catch((error) => alert(error.message))
@@ -38,6 +47,7 @@
         await closeGame().catch((error) => alert(error.message));
     }
 
+    console.log(game)
     
 </script>
 
@@ -50,9 +60,13 @@
     </button>
     {#if $authStore.currentUser}
 
-        {#if game?.gameID}
+        {#if game?.gameID !== null && game?.gameID !== undefined && game?.gameID.length > 3}
             <!--In Game-->
             <button on:click={() => showModal = "leave"} class="mr-4 text-lg border p-2 rounded-md hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Leave game</button>
+
+            {#if $authStore.currentUser.uid === "66Q8I5XwY0TChOmSUWoYM5nEaB32"}
+                <button on:click={start} class="mr-4 text-lg border p-2 rounded-md hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Start game</button>
+            {/if}
 
             {#if showModal === "leave"}
                 <Modal on:close={() => showModal = "closed"}>
@@ -73,7 +87,7 @@
             <!-- Make sure this only appears if uid is a certain value-->
             {#if $authStore.currentUser.uid === "66Q8I5XwY0TChOmSUWoYM5nEaB32"}
                 <button on:click={() => showModal = "create"} class="mr-4 text-lg border p-2 rounded-md hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Create game</button>
-                <button on:click={start} class="mr-4 text-lg border p-2 rounded-md hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Start game</button>
+                
                 <!-- <button on:click={recalculate} class="mr-4 text-lg border p-2 rounded-md">Recalculate</button> -->
 
                 {#if showModal === "create"}
@@ -82,12 +96,12 @@
                     </Modal>
                 {/if}
             {/if}
-
-            <button on:click={() => {window.location.href='/dashboard'}} class="mr-4 text-lg border p-2 rounded-md hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">{email}</button>
         {/if}
 
+        <button on:click={() => {window.location.href='/dashboard'}} class="mr-4 text-lg border p-2 rounded-md hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">{email}</button>
+
     {:else}
-        <button on:click={() => showModal = "auth"} class="mr-4 text-lg border p-2 rounded-md ">Log in / Sign up</button>
+        <button on:click={() => showModal = "auth"} class="mr-4 text-lg border p-2 rounded-md  hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Log in / Sign up</button>
 
         {#if showModal === "auth"}
             <Modal title="Log In/Sign Up" on:close={() => showModal = "closed"}>

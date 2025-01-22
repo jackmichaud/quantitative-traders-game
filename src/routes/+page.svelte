@@ -8,12 +8,6 @@
 </script>
 
 
-{#if $authStore?.game?.type === "dice"}
-    <div></div>
-{:else if $authStore?.game?.type === "cards"}
-    <h1> Different Game </h1>
-{:else}
-    <div class="bg-slate-500">
-        <RealtimeTrader/>
-    </div>
-{/if}
+<div class="bg-slate-500">
+    <RealtimeTrader/>
+</div>
