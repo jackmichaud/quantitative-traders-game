@@ -21,12 +21,12 @@
 </script>
 
 <div class="border-white border rounded-md mt-2">
-    <div class="bg-slate-700 content-evenly text-center items-center rounded-t-md border-b p-2 relative {isExpanded ? 'rounded-b-none border-b' : 'rounded-b-md border-none'}">
+    <div class="bg-slate-700 content-evenly text-center items-center rounded-t-md border-b p-2 {isExpanded ? 'rounded-b-none border-b' : 'rounded-b-md border-none'} flex justify-between">
         <h1 class="text-white text-center font-semibold text-md">Open Orders</h1>
 
         <button 
             on:click={() => { isExpanded = !isExpanded }} 
-            class="absolute top-1/2 right-4 -translate-y-1/2 text-white text-lg hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
+            class="text-white text-lg hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
             {isExpanded ? '↑' : '↓'}
         </button>
     </div>

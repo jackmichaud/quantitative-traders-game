@@ -14,15 +14,15 @@
 </script>
 
 <div class="border-white border rounded-md mb-2">
-    <div class="bg-slate-700 rounded-t-md relative {isExpanded ? 'rounded-b-none border-b' : 'rounded-b-md border-none'}">
+    <div class="bg-slate-700 rounded-t-md {isExpanded ? 'rounded-b-none border-b' : 'rounded-b-md border-none'} flex justify-between items-center px-4 py-2">
         <!-- Title -->
-        <h1 class="text-center text-white font-semibold py-2 text-md">
+        <h1 class="text-center text-white font-semibold text-md">
             Market Chart
         </h1>
         <!-- Button -->
         <button 
             on:click={() => { isExpanded = !isExpanded }} 
-            class="absolute top-1/2 right-4 -translate-y-1/2 text-white text-lg hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
+            class="text-white text-lg hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
             {isExpanded ? '↑' : '↓'}
         </button>
     </div>
