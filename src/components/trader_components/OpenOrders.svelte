@@ -71,7 +71,7 @@
         </div>
         <div class="min-h-32">
             <div class="border-dashed border-b">
-                <div class="flex">
+                <div class="flex bg-slate-600">
                     <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">Market</h1>
                     <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">Direction</h1>
                     <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">Price</h1>
@@ -82,7 +82,7 @@
             {#if market_data.buyOrders.length > 0 || market_data.sellOrders.length > 0}
                 {#each orders as o}
                     <div class="flex">
-                        <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">sum</h1>
+                        <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.market}</h1>
                         <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.direction}</h1>
                         <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.price}</h1>
                         <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.shares}</h1>

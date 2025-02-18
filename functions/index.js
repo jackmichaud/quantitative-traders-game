@@ -409,7 +409,10 @@ exports.cancelOrder = onCall(async (request, response) => {
         const order = request.data.order;
 
         // Check that the game is active
-        const gameDoc = await getFirestore().collection('games').doc(gameID).get();
+        const collectionName = official ? 'games' : 'unofficial_games';
+
+
+        const gameDoc = await getFirestore().collection(collectionName).doc(gameID).get();
         const gameData = gameDoc.data();
         if(gameData.status !== "active") {
             throw new HttpsError("failed-precondition", "Game is not active");
