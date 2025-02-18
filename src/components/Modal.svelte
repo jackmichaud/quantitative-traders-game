@@ -10,9 +10,8 @@
     }
 </script>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="fixed top-0 right-0 bottom-0 left-0 bg-black/[.5] flex justify-center items-center z-30">
+
+<div class="fixed top-0 right-0 bottom-0 left-0 bg-black/[.5] flex justify-center items-center z-50">
     <div class="border-white bg-slate-600 border rounded-md flex flex-col">
         
         <div class="flex justify-between bg-slate-700 border-b m2 rounded-t-md p-2">

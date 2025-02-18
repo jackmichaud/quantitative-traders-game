@@ -15,7 +15,7 @@
 </script>
 
 <h1 class="text-white font-semibold text-md mr-2">Market:</h1>
-<select bind:value={selected_market} on:change={manage_market_change} name="markets" id="market" class="bg-slate-700 border rounded-md p-2 text-white text-md  hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
+<select bind:value={selected_market} on:change={manage_market_change} name="markets" id="market" class="bg-slate-700 border rounded-md p-2 text-white text-md  hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transition-transform duration-150">
     {#each markets as market}
         <option value={market}>{market}</option>
     {/each}

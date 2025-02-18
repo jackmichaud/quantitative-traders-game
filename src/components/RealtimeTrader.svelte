@@ -293,7 +293,7 @@
   }
 </script>
 
-<main class="flex flex-row flex-grow z-0">  
+<main class="flex flex-row flex-grow">  
   <div class="basis-1/4 m-2">
     <MarketChart bind:chartData={market_data.meanPrice} start_time={game_data?.start_time} bind:title={current_market}/>
     <OrderBook bind:bids={market_data.buyOrders} bind:asks={market_data.sellOrders} bind:team_name={team_name}/>

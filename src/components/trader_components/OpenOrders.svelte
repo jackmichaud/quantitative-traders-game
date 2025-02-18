@@ -42,30 +42,30 @@
 
         <button 
             on:click={() => { isExpanded = !isExpanded }} 
-            class="text-white text-lg hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
+            class="text-white text-lg hover:scale-105 hover:shadow-lg transition-transform duration-150">
             {isExpanded ? '↑' : '↓'}
         </button>
     </div>
     {#if isExpanded}
         <div class="bg-slate-700 content-evenly text-center items-center rounded-t-md border-b p-2 flex justify-between">
-            <div class="flex bg-slate-600 rounded-md relative border">
+            <div class="flex bg-slate-600 rounded-md border">
                 <div class="justify-center items-center">
-                    <button on:click|preventDefault={() => {openOrders = true}} class="{openOrders ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Open</button>
+                    <button on:click|preventDefault={() => {openOrders = true}} class="{openOrders ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transition-transform duration-150">Open</button>
                 </div>
                 <div class="justify-center items-center align-middle">
-                    <button on:click|preventDefault={() => {openOrders = false}} class="ml-4 {!openOrders ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Closed</button>
+                    <button on:click|preventDefault={() => {openOrders = false}} class="ml-4 {!openOrders ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transition-transform duration-150">Closed</button>
                 </div>
             </div>
 
-            <div class="flex bg-slate-600 rounded-md relative border">
+            <div class="flex bg-slate-600 rounded-md border">
                 <div class="justify-center items-center">
-                    <button on:click|preventDefault={() => {orderFilter = "all"}} class="{orderFilter === "all" ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transform transition-transform duration-150">All</button>
+                    <button on:click|preventDefault={() => {orderFilter = "all"}} class="{orderFilter === "all" ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transition-transform duration-150">All</button>
                 </div>
                 <div class="justify-center items-center align-middle">
-                    <button on:click|preventDefault={() => {orderFilter = "team"}} class="ml-4 {orderFilter === "team" ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Team</button>
+                    <button on:click|preventDefault={() => {orderFilter = "team"}} class="ml-4 {orderFilter === "team" ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transition-transform duration-150">Team</button>
                 </div>
                 <div class="justify-center items-center align-middle">
-                    <button on:click|preventDefault={() => {orderFilter = "your"}} class="ml-4 {orderFilter === "your" ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Yours</button>
+                    <button on:click|preventDefault={() => {orderFilter = "your"}} class="ml-4 {orderFilter === "your" ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transition-transform duration-150">Yours</button>
                 </div>
             </div>
         </div>

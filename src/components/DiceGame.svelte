@@ -61,7 +61,7 @@
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="fixed top-0 right-0 bottom-0 left-0 bg-black/[.5] flex justify-center items-center z-30">
+<div class="fixed top-0 right-0 bottom-0 left-0 bg-black/[.5] flex justify-center items-center">
     <div class="border-orange-500 bg-slate-600 border rounded-md flex flex-col p-4 m-4">
         <div class="flex justify-end">
             <button class="font-semibold text-lg mr-4 underline" on:click={close}>Cancel</button>

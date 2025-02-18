@@ -22,7 +22,7 @@
         <!-- Button -->
         <button 
             on:click={() => { isExpanded = !isExpanded }} 
-            class="text-white text-lg hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
+            class="text-white text-lg hover:scale-105 hover:shadow-lg transition-transform duration-150">
             {isExpanded ? '↑' : '↓'}
         </button>
     </div>

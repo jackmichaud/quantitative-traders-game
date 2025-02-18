@@ -6,13 +6,13 @@
     let isExpanded = true
 </script>
 
-<div class="border-white border rounded-md z-0">
-    <div class="bg-slate-700 rounded-t-md {isExpanded ? 'rounded-b-none border-b ' : 'rounded-b-md'} z-0 flex justify-between items-center px-4">
+<div class="border-white border rounded-md">
+    <div class="bg-slate-700 rounded-t-md {isExpanded ? 'rounded-b-none border-b ' : 'rounded-b-md'} flex justify-between items-center px-4">
         <h1 class="text-center text-white font-semibold py-2 text-md">Order Book</h1>
 
         <button 
             on:click={() => { isExpanded = !isExpanded }} 
-            class="text-white text-lg hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
+            class="text-white text-lg hover:scale-105 hover:shadow-lg transition-transform duration-150">
             {isExpanded ? '↑' : '↓'}
         </button>
     </div>
