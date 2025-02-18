@@ -12,11 +12,33 @@
     export let lowest_ask = 0
     export let awaiting_update = false
 
+    let mouseDisplayHidden = true;
+    let mouseDisplayText = "";
+    let mouseX = 0;
+    let mouseY = 0;
+
+    function handleMouseMove(event) {
+        mouseX = event.clientX;
+        mouseY = event.clientY;
+    }
+
     const dispatch = createEventDispatcher()
 
     function handleOrder() {
         awaiting_update = true
         dispatch('placeOrder', pendingOrder)
+    }
+
+    function showMouseDisplay(text) {
+        mouseDisplayHidden = false;
+        mouseDisplayText = text;
+        window.addEventListener('mousemove', handleMouseMove);
+    }
+
+    function hideMouseDisplay() {
+        mouseDisplayHidden = true;
+        mouseDisplayText = "";
+        window.removeEventListener('mousemove', handleMouseMove);
     }
 </script>
 
@@ -71,19 +93,48 @@
         <div class="flex">
             <h1 class="text-white font-semibold py-2 text-sm mr-2">Place Order:</h1>
             {#if pendingOrder.shares !== null && (pendingOrder.shares > 1000 || pendingOrder.shares <= 0)}
-                <h1 class="border rounded text-red-600 border-red-600 p-2 text-sm">Please enter a number of shares between 0 and 1000!</h1>
+                <button 
+                    on:mouseenter={() => showMouseDisplay("Shares must be between 0 and 1000!")} 
+                    on:mouseleave={hideMouseDisplay} 
+                    class="bg-slate-500 text-slate-700 font-semibold w-32 text-sm rounded-md cursor-default"
+                >
+                    Place Order
+                </button>
             {:else if pendingOrder.type === 'limit' && pendingOrder.price !== null && (pendingOrder.price <= 0)}
-                <h1 class="border rounded text-red-600 border-red-600 p-2 text-sm">Please enter a price greater than 0!</h1>
+                <button 
+                    on:mouseenter={() => showMouseDisplay("Enter a price greater than 0!")} 
+                    on:mouseleave={hideMouseDisplay} 
+                    class="bg-slate-500 text-slate-700 font-semibold w-32 text-sm rounded-md cursor-default"
+                >
+                    Place Order
+                </button>
             {:else if pendingOrder.type === 'limit' && (pendingOrder.shares * pendingOrder.price <= 0)}
-                <h1 class="border rounded text-red-600 border-red-600 p-2 text-sm">Make sure total cost is greater than 0!</h1>
+                <button 
+                    on:mouseenter={() => showMouseDisplay("Enter a cost greater than 0!")} 
+                    on:mouseleave={hideMouseDisplay} 
+                    class="bg-slate-500 text-slate-700 font-semibold w-32 text-sm rounded-md cursor-default"
+                >
+                    Place Order
+                </button>
+            
             {:else}
-                <button on:click|preventDefault={handleOrder} class="bg-orange-500 text-slate-700 font-semibold w-32 text-sm rounded-md">Place Order</button>
+                <button on:click|preventDefault={handleOrder} class="bg-orange-500 text-slate-700 font-semibold w-32 text-sm rounded-md hover:shadow-lg transform transition-transform duration-150 hover:scale-105">Place Order</button>
             {/if}
             
         </div>
         <h1 class="ml-4 my-2 text-sm">Total Cost: ${pendingOrder.type === 'limit' ? pendingOrder.shares * pendingOrder.price : (pendingOrder.direction === 'buy' ? lowest_ask * pendingOrder.shares : highest_bid * pendingOrder.shares)}</h1>
     </div>
 </div>
+
+<!--Mouse Dispaly-->
+{#if !mouseDisplayHidden}
+    <div 
+        class="absolute bg-slate-700 text-white p-2 rounded-md border border-white text-sm font-semibold"
+        style="top: {mouseY}px; left: {mouseX}px; transform: translate(0%, -100%);"
+    >
+        <h1>{mouseDisplayText}</h1>
+    </div>
+{/if}
 
 <style>
     /* Loading overlay styling */
