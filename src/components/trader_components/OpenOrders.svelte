@@ -1,16 +1,32 @@
 <script>
     import { createEventDispatcher } from "svelte";
 
-    export let market_data = {buyOrders: [], sellOrders: [], meanPrice: []};
+    export let market_data = {buyOrders: [], sellOrders: [], meanPrice: [], filledOrders: []};
     export let team_name
+    export let user_id
 
     let isExpanded = true
+
+    let openOrders = true
+    let orderFilter = "all"
 
     const dispatch = createEventDispatcher()
 
     let orders = []
     $: if(market_data.buyOrders.length > 0 || market_data.sellOrders.length > 0) {
-        orders = [...market_data.buyOrders, ...market_data.sellOrders]
+        if (openOrders) {
+            orders = [...market_data.buyOrders, ...market_data.sellOrders]
+        } else {
+            orders = market_data.filledOrders
+        }
+
+        //apply filter
+        if (orderFilter === "team") {
+            orders = orders.filter(order => order.teamName === team_name);
+        } else if (orderFilter === "your") {
+            orders = orders.filter(order => order.user === user_id);
+        }
+
         orders.sort((a, b) => a.timestamp - b.timestamp);
         orders = orders
     }
@@ -22,7 +38,7 @@
 
 <div class="border-white border rounded-md mt-2">
     <div class="bg-slate-700 content-evenly text-center items-center rounded-t-md border-b p-2 {isExpanded ? 'rounded-b-none border-b' : 'rounded-b-md border-none'} flex justify-between">
-        <h1 class="text-white text-center font-semibold text-md">Open Orders</h1>
+        <h1 class="text-white text-center font-semibold text-md">Orders</h1>
 
         <button 
             on:click={() => { isExpanded = !isExpanded }} 
@@ -31,6 +47,28 @@
         </button>
     </div>
     {#if isExpanded}
+        <div class="bg-slate-700 content-evenly text-center items-center rounded-t-md border-b p-2 flex justify-between">
+            <div class="flex bg-slate-600 rounded-md relative border">
+                <div class="justify-center items-center">
+                    <button on:click|preventDefault={() => {openOrders = true}} class="{openOrders ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Open</button>
+                </div>
+                <div class="justify-center items-center align-middle">
+                    <button on:click|preventDefault={() => {openOrders = false}} class="ml-4 {!openOrders ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Closed</button>
+                </div>
+            </div>
+
+            <div class="flex bg-slate-600 rounded-md relative border">
+                <div class="justify-center items-center">
+                    <button on:click|preventDefault={() => {orderFilter = "all"}} class="{orderFilter === "all" ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transform transition-transform duration-150">All</button>
+                </div>
+                <div class="justify-center items-center align-middle">
+                    <button on:click|preventDefault={() => {orderFilter = "team"}} class="ml-4 {orderFilter === "team" ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Team</button>
+                </div>
+                <div class="justify-center items-center align-middle">
+                    <button on:click|preventDefault={() => {orderFilter = "your"}} class="ml-4 {orderFilter === "your" ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Yours</button>
+                </div>
+            </div>
+        </div>
         <div class="min-h-32">
             <div class="border-dashed border-b">
                 <div class="flex">

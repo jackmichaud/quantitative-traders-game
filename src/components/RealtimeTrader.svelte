@@ -30,7 +30,7 @@
   // Data about markets
   let market_types = [];
   let current_market = null;
-  let market_data = {buyOrders: [], sellOrders: [], meanPrice: []};
+  let market_data = {buyOrders: [], sellOrders: [], meanPrice: [], filledOrders: []};
   let news = [];
   let game_state = "nothing"
   let official = false;
@@ -158,7 +158,7 @@
       current_market_unsub();
       current_market_unsub = null;
     }
-    market_data = {buyOrders: [], sellOrders: [], meanPrice: []};
+    market_data = {buyOrders: [], sellOrders: [], meanPrice: [], filledOrders: []};
   }
 
   onDestroy(() => {
@@ -304,7 +304,7 @@
   <div class="basis-2/4 my-2">
     <TeamTab on:marketChange={updateMarket} bind:markets={market_types} bind:selected_market={current_market} bind:profit_loss={profit_loss} start_time={game_data?.start_time}/>
     <OrderPlacer bind:pendingOrder={pending_order} highest_bid={market_data.buyOrders[0]?.price || 0} lowest_ask={market_data.sellOrders[0]?.price || 0} on:placeOrder={_placeOrder} bind:awaiting_update={awaiting_update}/>
-    <OpenOrders bind:team_name={team_name} bind:market_data={market_data} on:cancelOrder={_cancelOrder} />
+    <OpenOrders bind:team_name={team_name} bind:user_id={uid} bind:market_data={market_data} on:cancelOrder={_cancelOrder} />
   </div>
   {/if}
   <div class="basis-1/4 m-2">
