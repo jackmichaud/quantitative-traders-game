@@ -1,0 +1,34 @@
+[debug] [2025-02-18T22:17:49.043Z] ----------------------------------------------------------------------
+[debug] [2025-02-18T22:17:49.045Z] Command:       /Users/jackmichaud/.nvm/versions/node/v20.11.1/bin/node /Users/jackmichaud/.nvm/versions/node/v20.11.1/bin/firebase deploy --only hosting
+[debug] [2025-02-18T22:17:49.045Z] CLI Version:   13.24.1
+[debug] [2025-02-18T22:17:49.045Z] Platform:      darwin
+[debug] [2025-02-18T22:17:49.045Z] Node Version:  v20.11.1
+[debug] [2025-02-18T22:17:49.045Z] Time:          Tue Feb 18 2025 17:17:49 GMT-0500 (Eastern Standard Time)
+[debug] [2025-02-18T22:17:49.046Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-02-18T22:17:49.084Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-02-18T22:17:49.085Z] > authorizing via signed-in user (jackmichaud04@gmail.com)
+[debug] [2025-02-18T22:17:49.085Z] [iam] checking project qtav-4b519 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-02-18T22:17:49.085Z] Checked if tokens are valid: true, expires at: 1739918504762
+[debug] [2025-02-18T22:17:49.085Z] Checked if tokens are valid: true, expires at: 1739918504762
+[debug] [2025-02-18T22:17:49.086Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/qtav-4b519:testIamPermissions [none]
+[debug] [2025-02-18T22:17:49.086Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/qtav-4b519:testIamPermissions x-goog-quota-user=projects/qtav-4b519
+[debug] [2025-02-18T22:17:49.086Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/qtav-4b519:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-02-18T22:17:49.269Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/qtav-4b519:testIamPermissions 200
+[debug] [2025-02-18T22:17:49.269Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/qtav-4b519:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-02-18T22:17:49.270Z] Checked if tokens are valid: true, expires at: 1739918504762
+[debug] [2025-02-18T22:17:49.270Z] Checked if tokens are valid: true, expires at: 1739918504762
+[debug] [2025-02-18T22:17:49.270Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/qtav-4b519 [none]
+[debug] [2025-02-18T22:17:49.693Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/qtav-4b519 200
+[debug] [2025-02-18T22:17:49.693Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/qtav-4b519 {"projectId":"qtav-4b519","projectNumber":"1066809707282","displayName":"qtav","name":"projects/qtav-4b519","resources":{"hostingSite":"qtav-4b519","realtimeDatabaseInstance":"qtav-4b519-default-rtdb"},"state":"ACTIVE","etag":"1_73760491-5099-411d-8ced-04c3f58bae36"}
+[debug] [2025-02-18T22:17:50.496Z] defaultcredentials: writing to file /Users/jackmichaud/.config/firebase/jackmichaud04_gmail_com_application_default_credentials.json
+[debug] [2025-02-18T22:17:50.499Z] Checked if tokens are valid: true, expires at: 1739918504762
+[debug] [2025-02-18T22:17:50.499Z] Checked if tokens are valid: true, expires at: 1739918504762
+[debug] [2025-02-18T22:17:50.499Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/qtav-4b519/sites pageToken=&pageSize=10
+[debug] [2025-02-18T22:17:51.038Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/qtav-4b519/sites 200
+[debug] [2025-02-18T22:17:51.038Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/qtav-4b519/sites {"sites":[{"name":"projects/qtav-4b519/sites/qtav-4b519","defaultUrl":"https://qtav-4b519.web.app","appId":"1:1066809707282:web:138b2d67be8aeed28c01cb","type":"DEFAULT_SITE"}]}
+[debug] [2025-02-18T22:17:51.038Z] Checked if tokens are valid: true, expires at: 1739918504762
+[debug] [2025-02-18T22:17:51.038Z] Checked if tokens are valid: true, expires at: 1739918504762
+[debug] [2025-02-18T22:17:51.039Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:1066809707282:web:138b2d67be8aeed28c01cb/config [none]
+[debug] [2025-02-18T22:17:51.492Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:1066809707282:web:138b2d67be8aeed28c01cb/config 200
+[debug] [2025-02-18T22:17:51.492Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:1066809707282:web:138b2d67be8aeed28c01cb/config {"projectId":"qtav-4b519","appId":"1:1066809707282:web:138b2d67be8aeed28c01cb","databaseURL":"https://qtav-4b519-default-rtdb.firebaseio.com","storageBucket":"qtav-4b519.firebasestorage.app","apiKey":"AIzaSyBV0u6zU5FIh5hl0rBvE_9Kwvgo-LQp-og","authDomain":"qtav-4b519.firebaseapp.com","messagingSenderId":"1066809707282"}

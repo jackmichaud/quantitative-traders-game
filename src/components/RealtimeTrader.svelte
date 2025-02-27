@@ -144,6 +144,7 @@
         if(doc.id == current_market) {
           market_data = doc.data() || {buyOrders: [], sellOrders: [], meanPrice: [], filledOrders: [], expected_value: 0, ending_price: null};
         }
+        console.log("TEST",doc.data())
         
         // Export game_data as a CSV file
         // console.log("Printinng filled orders for " + current_market)
@@ -177,7 +178,7 @@
     current_market_unsub = onSnapshot(doc(db, `${collectionName}/${game_id}/markets/${current_market}`), (doc) => {
       if(doc.id == current_market) {
         market_data = doc.data() || {buyOrders: [], sellOrders: [], meanPrice: [], filledOrders: [], expected_value: 0, ending_price: null};
-        
+        console.log("TEST",doc.data())
         // console.log("Printinng filled orders for " + current_market)
         // const csv = csvmaker(market_data.filledOrders);
         // downloadCSV(csv);

@@ -408,6 +408,8 @@ exports.cancelOrder = onCall(async (request, response) => {
         // Get the order to cancel
         const order = request.data.order;
 
+        const official = userData.game.official
+
         // Check that the game is active
         const collectionName = official ? 'games' : 'unofficial_games';
 

@@ -25,14 +25,20 @@
             <div class="basis-1/2 border-r border-dashed">
                 {#if bids.length > 0}
                     {#each bids as bid}
-                        <h1 class="{bid.teamName === team_name ? 'bg-slate-600' : 'bg-slate-500'} text-sm font-semibold text-white text-center py-1">{bid.shares} x ${bid.price}</h1>
+                        <h1 
+                            class="{bid.teamName === team_name ? 'bg-slate-600' : 'bg-slate-500'} text-sm font-semibold text-white text-center py-1 hover:scale-105 hover:shadow-lg transform transition-transform duration-150 bg-slate-500 border-y border-dashed">
+                            {bid.shares} x ${bid.price}
+                        </h1>
                     {/each}
                 {/if}
             </div>
             <div class="basis-1/2">
                 {#if asks.length > 0}
                     {#each asks as ask}
-                        <h1 class="{ask.teamName === team_name ? 'bg-slate-600' : 'bg-slate-500'} text-sm font-semibold text-white text-center py-1">{ask.shares} x ${ask.price}</h1>
+                        <h1 
+                            class="{ask.teamName === team_name ? 'bg-slate-600' : 'bg-slate-500'} text-sm font-semibold text-white text-center py-1 hover:scale-105 hover:shadow-lg transform transition-transform duration-150 bg-slate-500 border-y border-dashed">
+                            {ask.shares} x ${ask.price}
+                        </h1>
                     {/each}
                 {/if}
             </div>

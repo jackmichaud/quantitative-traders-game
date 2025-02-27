@@ -81,14 +81,14 @@
             </div>
             {#if market_data.buyOrders.length > 0 || market_data.sellOrders.length > 0}
                 {#each orders as o}
-                    <div class="flex">
+                    <div class="flex border-y border-dashed hover:scale-105 hover:shadow-lg transform transition-transform duration-150 bg-slate-500">
                         <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.market}</h1>
                         <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.direction}</h1>
                         <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.price}</h1>
                         <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.shares}</h1>
-                        {#if o.teamName === team_name && team_name !== null}
-                            <button on:click={() => cancelOrder(o)} class="text-md font-semibold bg-red-400 p-4  text-red-600 text-center py-1 w-1/5">
-                                X
+                        {#if openOrders && o.teamName === team_name && team_name !== null}
+                            <button on:click={() => cancelOrder(o)} class="text-md font-semibold bg-orange-500 p-4  text-center py-1 w-1/5 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
+                                🗑️
                             </button>
                         {/if}
                     </div>

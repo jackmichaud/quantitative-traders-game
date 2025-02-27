@@ -53,7 +53,8 @@
     <!-- Content -->
     <div class="bg-slate-700 rounded-t-md flex p-2 justify-between">
         <div class="flex align-middle">
-            <h1 class="text-white font-semibold py-2 text-sm mr-2">Order Direction:</h1>
+            <h1 class="hidden lg:inline text-white font-semibold py-2 text-sm mr-2">Order Direction:</h1>
+            <h1 class="lg:hidden text-white font-semibold py-2 text-sm mr-2">Direction:</h1>
             <div class="flex bg-slate-600 rounded-md border">
                 <div class="justify-center items-center">
                     <button on:click|preventDefault={() => {pendingOrder.direction = 'buy'}} class="{pendingOrder.direction === 'buy' ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transition-transform duration-150">Buy</button>
@@ -70,7 +71,8 @@
     </div>
     <div class="bg-slate-700 flex p-2 justify-between">
         <div class="flex align-middle">
-            <h1 class=" text-white font-semibold py-2 text-sm mr-2">Order Type:</h1>
+            <h1 class=" hidden lg:inline text-white font-semibold py-2 text-sm mr-2">Order Type:</h1>
+            <h1 class=" lg:hidden text-white font-semibold py-2 text-sm mr-2">Type:</h1>
             <div class="flex bg-slate-600 rounded-md border">
                 <div class="justify-center items-center">
                     <button on:click|preventDefault={() => {pendingOrder.type = 'market'}} class="{pendingOrder.type === 'market' ? 'bg-orange-500' : 'bg-transparent text-white'} text-slate-600 font-semibold p-2 text-sm rounded-md hover:scale-105 hover:shadow-lg transition-transform duration-150">Market</button>

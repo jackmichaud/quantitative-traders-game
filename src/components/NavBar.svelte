@@ -54,9 +54,15 @@
 <header class="sticky flex py-2 items-center bg-slate-700 font-semibold text-4xl text-white border-b border-white justify-between">
     <button 
         on:click={() => { window.location.href = '/' }} 
-        class="ml-4 text-center text-orange-500 text-4xl italic transform transition-transform duration-150 ease-in-out hover:scale-105 bg-transparent hover:shadow-lg"
+        class="hidden lg:inline ml-4 text-center text-orange-500 text-4xl italic transform transition-transform duration-150 ease-in-out hover:scale-105 bg-transparent hover:shadow-lg"
         >
         Quantitative Traders At Virginia
+    </button>
+    <button 
+        on:click={() => { window.location.href = '/' }} 
+        class="lg:hidden ml-4 text-center text-orange-500 text-4xl italic transform transition-transform duration-150 ease-in-out hover:scale-105 bg-transparent hover:shadow-lg"
+        >
+        QTV
     </button>
     {#if $authStore.currentUser}
 
