@@ -96,7 +96,7 @@
             <h1 class="text-white font-semibold py-2 text-sm mr-2">Place Order:</h1>
             {#if pendingOrder.shares !== null && (pendingOrder.shares > 1000 || pendingOrder.shares <= 0)}
                 <button 
-                    on:mouseenter={() => showMouseDisplay("Shares must be between 0 and 1000!")} 
+                    on:mouseenter={() => showMouseDisplay("Shares must be between 0 and 1000")} 
                     on:mouseleave={hideMouseDisplay} 
                     class="bg-slate-500 text-slate-700 font-semibold w-32 text-sm rounded-md cursor-default"
                 >
@@ -104,7 +104,7 @@
                 </button>
             {:else if pendingOrder.type === 'limit' && pendingOrder.price !== null && (pendingOrder.price <= 0)}
                 <button 
-                    on:mouseenter={() => showMouseDisplay("Enter a price greater than 0!")} 
+                    on:mouseenter={() => showMouseDisplay("Enter a price greater than 0")} 
                     on:mouseleave={hideMouseDisplay} 
                     class="bg-slate-500 text-slate-700 font-semibold w-32 text-sm rounded-md cursor-default"
                 >
@@ -112,7 +112,7 @@
                 </button>
             {:else if pendingOrder.type === 'limit' && (pendingOrder.shares * pendingOrder.price <= 0)}
                 <button 
-                    on:mouseenter={() => showMouseDisplay("Enter a cost greater than 0!")} 
+                    on:mouseenter={() => showMouseDisplay("Enter a cost greater than 0")} 
                     on:mouseleave={hideMouseDisplay} 
                     class="bg-slate-500 text-slate-700 font-semibold w-32 text-sm rounded-md cursor-default"
                 >

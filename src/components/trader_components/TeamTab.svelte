@@ -44,7 +44,8 @@
 
 <div class="border bg-slate-700 p-2 rounded-md flex justify-between items-center text-sm text-black font-semibold">
     <div class="flex">
-        <h1 class="text-white font-semibold py-2 text-sm mr-2">Time Remaining:</h1>
+        <h1 class="text-white font-semibold py-2 text-sm mr-2 md:hidden">Time:</h1>
+        <h1 class="text-white font-semibold py-2 text-sm mr-2 hidden md:block">Time Remaining:</h1>
         <h1 class="bg-orange-500 px-2 py-2 rounded-md text-slate-700">{#if start_time === null || displayClock == false}0:00{:else}{clock}{/if}</h1>
     </div>
     

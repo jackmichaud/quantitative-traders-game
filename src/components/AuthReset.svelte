@@ -19,8 +19,8 @@
 
 <div class="flex flex-col align-middle items-center">
     <div>
-        <button on:click={() => action = 'updateEmail'} class="mr-4 text-xl border p-4 rounded-md">Update Email</button>
-        <button on:click={() => action = 'updatePass'} class="mr-4 text-xl border p-4 rounded-md">Update Password</button>
+        <button on:click={() => action = 'updateEmail'} class="mr-1 text-lg border p-2 rounded-md">Update Email</button>
+        <button on:click={() => action = 'updatePass'} class="text-lg border p-2 rounded-md">Update Password</button>
     </div>
     {#if action === 'updateEmail'}
         <form class="flex flex-col">

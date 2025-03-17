@@ -45,74 +45,71 @@ exports.setupUser = functions.auth.user().onCreate((user) => {
  * @return {Promise<void>} A promise that resolves when the user document is created.
  */
 exports.joinGame = onCall(async (request, response) => {
-    try {
-        if (!request.auth) {
-            // Throwing an HttpsError so that the client gets the error details.
-            throw new HttpsError("failed-precondition", "The function must be " +
-                    "called while authenticated.");
-        }
-
-        const gameID = request.data.game_id;
-        const teamName = request.data.team_name;
-        const uid = request.auth.uid;
-
-        let collectionName = 'games';
-
-        // Fetch the game document
-        let gameDoc = await getFirestore().collection(collectionName).doc(gameID).get();
-
-        if (!gameDoc.exists) {
-            collectionName = 'unofficial_games';
-            gameDoc = await getFirestore().collection(collectionName).doc(gameID).get();
-        }
-
-        // Check if the game exists
-        if(!gameDoc.exists) {
-            throw new HttpsError("not-found", "Game not found.");
-        }
-
-        const gameData = gameDoc.data();
-
-        // Check if the game has already started
-        if(gameData.status !== "waiting") {
-            throw new HttpsError("deadline-exceeded", "Game already started.");
-        }
-
-        // Find the team or create a new one
-        const teams = gameData.teams || [];
-        const teamIndex = teams.findIndex(team => team.name === teamName);
-
-        if (teamIndex >= 0) {
-            // Add user to the existing team
-            teams[teamIndex].players = [...teams[teamIndex].players, uid];
-        } else {
-            // Create a new team with the user
-            teams.push({ name: teamName, balance: 0, players: [uid] });
-        }
-
-        const news = gameData.news || [];
-        news.push({
-            title: "Player joined " + teamName,
-            content: "",
-            timestamp: Timestamp.now()
-        })
-
-        // Update the game document with the new teams array
-        await getFirestore().collection(collectionName).doc(gameID).update({ teams: teams, news: news });
-
-        // Fetch the user document
-        const userDoc = await getFirestore().collection('users').doc(uid).get();
-        const userData = userDoc.data();
-
-        // Add the gameID and teamName to the user document
-        userData.game = {type: gameData.game_type, gameID: gameID, teamName: teamName, official: collectionName === 'games' ? true : false}
-        await getFirestore().collection('users').doc(uid).update({ game: userData.game });
-
-        return "Game joined successfully";
-    } catch (error) {
-        logger.error("Error joining game:", error);
-        throw new HttpsError("internal", "Internal firebase error");
+    if (!request.auth) {
+        // Throwing an HttpsError so that the client gets the error details.
+        throw new HttpsError("failed-precondition", "The function must be " +
+                "called while authenticated.");
     }
+
+    const gameID = request.data.game_id;
+    const teamName = request.data.team_name;
+    const uid = request.auth.uid;
+
+    let collectionName = 'games';
+
+    // Fetch the game document
+    let gameDoc = await getFirestore().collection(collectionName).doc(gameID).get();
+
+    if (!gameDoc.exists) {
+        collectionName = 'unofficial_games';
+        gameDoc = await getFirestore().collection(collectionName).doc(gameID).get();
+    }
+
+    // Check if the game exists
+    if(!gameDoc.exists) {
+        throw new HttpsError("not-found", "Game not found.");
+    }
+
+    const gameData = gameDoc.data();
+
+    // Check if the game has already started
+    if(gameData.status !== "waiting") {
+        throw new HttpsError("deadline-exceeded", "Game already started.");
+    }
+
+    // Fetch the user document
+    const userDoc = await getFirestore().collection('users').doc(uid).get();
+    const userData = userDoc.data();
+
+    const email = userData.email;
+
+    // Find the team or create a new one
+    const teams = gameData.teams || [];
+    const teamIndex = teams.findIndex(team => team.name === teamName);
+
+    if (teamIndex >= 0) {
+        // Add user to the existing team
+        teams[teamIndex].players = [...teams[teamIndex].players, {uid: uid, email: email}];
+    } else {
+        // Create a new team with the user
+        teams.push({ name: teamName, balance: 0, players: [{uid: uid, email: email}] });
+    }
+
+    const news = gameData.news || [];
+    news.push({
+        title: "Player joined " + teamName,
+        content: "",
+        timestamp: Timestamp.now()
+    })
+
+    // Update the game document with the new teams array
+    await getFirestore().collection(collectionName).doc(gameID).update({ teams: teams, news: news });
+
+    // Add the gameID and teamName to the user document
+    userData.game = {type: gameData.game_type, gameID: gameID, teamName: teamName, official: collectionName === 'games' ? true : false}
+    await getFirestore().collection('users').doc(uid).update({ game: userData.game });
+
+    return "Game joined successfully";
 });
 
 /**
@@ -124,70 +121,64 @@ exports.joinGame = onCall(async (request, response) => {
  * @throws {HttpsError} - If the user is not authenticated, if the game does not exist, or if the game has already started.
  */
 exports.leaveGame = onCall(async (request, response) => {
-    try {
-        if (!request.auth) {       
-            // Throwing an HttpsError so that the client gets the error details.    
-            throw new HttpsError("failed-precondition", "The function must be " + 
-                "called while authenticated");
-        }
-
-        const uid = request.auth.uid;
-
-        // Fetch the user document
-        const userDoc = await getFirestore().collection('users').doc(uid).get();
-        const userData = userDoc.data();
-
-        // Get gameID and teamName from the user document
-        const gameID = userData.game.gameID
-        const teamName = userData.game.teamName;
-        const collectionName = userData.game.official ? 'games' : 'unofficial_games';
-
-        // Fetch the game document
-        const gameDoc = await getFirestore().collection(collectionName).doc(gameID).get();
-
-        // Check if the game exists
-        if(!gameDoc.exists) {
-            throw new HttpsError("not-found", "Game not found.");
-        }
-
-        const gameData = gameDoc.data();
-
-        // Check if the game has already started
-        if(gameData.status === "active") {
-            throw new HttpsError("deadline-exceeded", "Game already started.");
-        }
-
-        // Find the team
-        const teams = gameData.teams || [];
-        const teamIndex = teams.findIndex(team => team.name === teamName);
-
-        // Check if team exists
-        if (teamIndex < 0) {
-            throw new HttpsError("not-found", "Team not found.");
-        }
-
-        // Remove the player's uid from the team
-        teams[teamIndex].players = teams[teamIndex].players.filter(playerUID => playerUID !== uid);
-
-        // Check if the team is empty
-        if (teams[teamIndex].players.length === 0) {
-            // Remove the team from the game
-            teams.splice(teamIndex, 1);
-        }
-        
-        // Update the game document with the new teams array
-        await getFirestore().collection(collectionName).doc(gameID).update({ teams: teams });
-
-        // Remove the gameID and teamName from the user document
-        userData.game = {type: "none", gameID: null, teamName: null};
-        await getFirestore().collection('users').doc(uid).update({ game: userData.game });
-
-        return "Game left successfully";
-
-    } catch (error) {
-        logger.error("Error leaving game:", error);
-        throw new HttpsError("internal", "Internal firebase error");
+    if (!request.auth) {       
+        // Throwing an HttpsError so that the client gets the error details.    
+        throw new HttpsError("failed-precondition", "The function must be " + 
+            "called while authenticated");
     }
+
+    const uid = request.auth.uid;
+
+    // Fetch the user document
+    const userDoc = await getFirestore().collection('users').doc(uid).get();
+    const userData = userDoc.data();
+
+    // Get gameID and teamName from the user document
+    const gameID = userData.game.gameID
+    const teamName = userData.game.teamName;
+    const collectionName = userData.game.official ? 'games' : 'unofficial_games';
+
+    // Fetch the game document
+    const gameDoc = await getFirestore().collection(collectionName).doc(gameID).get();
+
+    // Check if the game exists
+    if(!gameDoc.exists) {
+        throw new HttpsError("not-found", "Game not found.");
+    }
+
+    const gameData = gameDoc.data();
+
+    // Check if the game has already started
+    if(gameData.status === "active") {
+        throw new HttpsError("deadline-exceeded", "Game already started.");
+    }
+
+    // Find the team
+    const teams = gameData.teams || [];
+    const teamIndex = teams.findIndex(team => team.name === teamName);
+
+    // Check if team exists
+    if (teamIndex < 0) {
+        throw new HttpsError("not-found", "Team not found.");
+    }
+
+    // Remove the player's uid from the team
+    teams[teamIndex].players = teams[teamIndex].players.filter(player => player.uid !== uid);
+
+    // Check if the team is empty
+    if (teams[teamIndex].players.length === 0) {
+        // Remove the team from the game
+        teams.splice(teamIndex, 1);
+    }
+    
+    // Update the game document with the new teams array
+    await getFirestore().collection(collectionName).doc(gameID).update({ teams: teams });
+
+    // Remove the gameID and teamName from the user document
+    userData.game = {type: "none", gameID: null, teamName: null};
+    await getFirestore().collection('users').doc(uid).update({ game: userData.game });
+
+    return "Game left successfully";
 });
 
 /**
@@ -410,9 +401,13 @@ exports.cancelOrder = onCall(async (request, response) => {
 
         const official = userData.game.official
 
+        logger.log("Cancelling order:", order);
+        logger.log("Official?:", official);
+
         // Check that the game is active
         const collectionName = official ? 'games' : 'unofficial_games';
 
+        logger.log("Collection name:", collectionName);
 
         const gameDoc = await getFirestore().collection(collectionName).doc(gameID).get();
         const gameData = gameDoc.data();
@@ -427,10 +422,10 @@ exports.cancelOrder = onCall(async (request, response) => {
 
         if(order.direction === "buy") {
             // Delete the order from the market
-            await getFirestore().collection('games').doc(gameID).collection('markets').doc(order.market).update({ buyOrders: FieldValue.arrayRemove(order) });
+            await getFirestore().collection(collectionName).doc(gameID).collection('markets').doc(order.market).update({ buyOrders: FieldValue.arrayRemove(order) });
         } else {
             // Delete the order from the market
-            await getFirestore().collection('games').doc(gameID).collection('markets').doc(order.market).update({ sellOrders: FieldValue.arrayRemove(order) });
+            await getFirestore().collection(collectionName).doc(gameID).collection('markets').doc(order.market).update({ sellOrders: FieldValue.arrayRemove(order) });
         }
 
     } catch (error) {
@@ -526,15 +521,12 @@ exports.closeGameManual = onCall(async (request, response) => {
             let newPlayers = [];
             
             // Iterate through each player UID in the team's player list
-            for (const playerUid of team.players) {   
-                // Retrieve the player's document from Firestore
-                const playerDoc = await getFirestore().collection('users').doc(playerUid).get();
-                const playerData = playerDoc.data();
+            for (const player of team.players) {   
                 
                 // Push the transformed player data into newPlayers array
                 newPlayers.push({
-                    uid: playerUid,
-                    email: playerData.email,
+                    uid: player.uid,
+                    email: player.email,
                     balance: 0  
                 });
             }
@@ -777,7 +769,7 @@ exports.endGameManual = onCall(async (request, response) => {
         // For each team, iterate through each player and update their document
         for (const team of gameData.teams) {
             for (const player of team.players) {
-                await getFirestore().collection('users').doc(player).update({ game: {type: "none", gameID: null, teamName: null} });
+                await getFirestore().collection('users').doc(player.uid).update({ game: {type: "none", gameID: null, teamName: null} });
             }
         }
 
@@ -1076,6 +1068,9 @@ exports.closeGame = onCall(async (request) => {
   
       // Batch get user documents
       const userRefs = Array.from(userUIDs).map((uid) => firestore.collection('users').doc(uid));
+      if(userRefs.length === 0) {
+        logger.warn('No user documents to fetch');
+      }
       const userDocs = await firestore.getAll(...userRefs);
   
       // Create a map of user data
@@ -1098,16 +1093,16 @@ exports.closeGame = onCall(async (request) => {
         }
         // Fetch player data
         const newPlayers = [];
-        for (let playerUid of team.players) {
-          const playerData = userMap[playerUid];
+        for (let player of team.players) {
+          const playerData = userMap[player.uid];
           if (playerData) {
             newPlayers.push({
-              uid: playerUid,
+              uid: player.uid,
               email: playerData.email,
               balance: 0, // Initialize balance
             });
           } else {
-            logger.warn(`Player data not found for UID: ${playerUid}`);
+            logger.warn(`Player data not found for UID: ${player.uid}`);
           }
         }
         team.players = newPlayers;
