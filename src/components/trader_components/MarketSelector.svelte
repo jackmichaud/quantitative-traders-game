@@ -3,7 +3,7 @@
     import { createEventDispatcher } from "svelte";
 
     export let markets = []
-    export let selected_market
+    export let selected_market = ""
 
     const dispatch = createEventDispatcher()
 

@@ -435,163 +435,201 @@ exports.cancelOrder = onCall(async (request, response) => {
 })
 
 exports.closeGameManual = onCall(async (request, response) => {
-    try {
-        if (!request.auth) {
-            // Throwing an HttpsError so that the client gets the error details.
-            throw new HttpsError("failed-precondition", "The function must be " + 
-                "called while authenticated");
-        }
+    if (!request.auth) {
+        // Throwing an HttpsError so that the client gets the error details.
+        throw new HttpsError("failed-precondition", "The function must be " + 
+            "called while authenticated");
+    }
 
-        const uid = request.auth.uid;
+    const uid = request.auth.uid;
 
-        // Fetch the user document
-        const userDoc = await getFirestore().collection('users').doc(uid).get();
-        const userData = userDoc.data();
+    // Fetch the user document
+    const userDoc = await getFirestore().collection('users').doc(uid).get();
+    const userData = userDoc.data();
 
-        // Get gameID and teamName from the user document
-        const gameID = userData.game.gameID
-        const official = userData.game.official
-        const game_type = userData.game.type
-        const collectionName = official ? 'games' : 'unofficial_games';
+    // Get gameID and teamName from the user document
+    const gameID = userData.game.gameID
+    const official = userData.game.official
+    const game_type = userData.game.type
+    const collectionName = official ? 'games' : 'unofficial_games';
 
-        if(gameID === null) {
-            throw new HttpsError("failed-precondition", "User is not in game");
-        }
+    if(gameID === null) {
+        throw new HttpsError("failed-precondition", "User is not in game");
+    }
 
-        // Update the game status
-        await getFirestore().collection(collectionName).doc(gameID).update({ status: "closed" });
-        logger.log("Game closed!")
+    // Update the game status
+    await getFirestore().collection(collectionName).doc(gameID).update({ status: "closed" });
+    logger.log("Game closed!")
+    
+    // Calculate final prices
+    const gameDoc = await getFirestore().collection(collectionName).doc(gameID).get();
+    const gameData = gameDoc.data();
+
+    const leaderboardType = gameData.season;
+
+    let market_names = []
+    let market_prices = []
+    if (game_type == "dice") {
+        market_names = ["SUM", "PRODUCT", "RANGE", "EVENS", "ODDS"];
+
+        market_prices[0] = gameData.rolls.reduce((acc, curr) => acc + curr, 0);
+        market_prices[1] = gameData.rolls.reduce((acc, curr) => acc * curr, 1);
+        market_prices[2] = Math.max(...gameData.rolls) - Math.min(...gameData.rolls);
+        market_prices[3] = gameData.rolls.filter(x => x % 2 === 0).reduce((acc, curr) => acc + curr, 0) ** 2;
+        market_prices[4] = gameData.rolls.filter(x => x % 2 === 1).reduce((acc, curr) => acc + curr, 0) ** 2;
+    } else if (game_type == "cards") {
+        market_names = ["2s", "3s", "4s", "5s", "6s"];
+        market_prices = Array(market_names.length).fill(0);
+
+        // Calculate the final prices for each card market
+        remainingCards = [1,2,3,4,5,6,7,8,9,10].filter(x => !gameData.rolls.includes(x))
+        market_prices[0] = Math.pow(
+            remainingCards.filter(x => x % 2 === 0).reduce((acc, curr) => acc + curr, 0),
+            2
+        );
         
-        // Calculate final prices
-        const gameDoc = await getFirestore().collection(collectionName).doc(gameID).get();
-        const gameData = gameDoc.data();
+        // 3's Market: Sum of multiples of 3 cubed
+        market_prices[1] = Math.pow(
+            remainingCards.filter(x => x % 3 === 0).reduce((acc, curr) => acc + curr, 0),
+            3
+        );
+        
+        // 4's Market: Product of all numbers greater than 4
+        let greaterThan4 = remainingCards.filter(x => x > 4);
+        market_prices[2] = greaterThan4.length > 0 ? greaterThan4.reduce((acc, curr) => acc * curr, 1) : 0;
+        
+        // 5's Market: Minimum of numbers 5 or below to the power of 5
+        let belowOrEqual5 = remainingCards.filter(x => x <= 5);
+        market_prices[3] = belowOrEqual5.length > 0 ? Math.pow(Math.min(...belowOrEqual5), 5) : 0;
+        
+        // 6's Market: Sum of numbers 6 or above multiplied by 6
+        market_prices[4] = remainingCards.filter(x => x >= 6).reduce((acc, curr) => acc + curr, 0) * 6;
+    } else {
+        throw new HttpsError("failed-precondition", "Game type not supported");
+    }
 
-        let market_names = []
-        let market_prices = []
-        if (game_type == "dice") {
-            market_names = ["SUM", "PRODUCT", "RANGE", "EVENS", "ODDS"];
+    //Update the market documents with the final prices
+    for (const market of market_names) {
+        const index = market_names.indexOf(market);
+        logger.log(market_names, market_prices, index, game_type, market_prices[index]);
+        await getFirestore().collection(collectionName).doc(gameID).collection('markets').doc(market).update({ price: market_prices[index] });
+    }
 
-            market_prices[0] = gameData.rolls.reduce((acc, curr) => acc + curr, 0);
-            market_prices[1] = gameData.rolls.reduce((acc, curr) => acc * curr, 1);
-            market_prices[2] = Math.max(...gameData.rolls) - Math.min(...gameData.rolls);
-            market_prices[3] = gameData.rolls.filter(x => x % 2 === 0).reduce((acc, curr) => acc + curr, 0) ** 2;
-            market_prices[4] = gameData.rolls.filter(x => x % 2 === 1).reduce((acc, curr) => acc + curr, 0) ** 2;
-        } else if (game_type == "cards") {
-            market_names = ["2s", "3s", "4s", "5s", "6s"];
-            market_prices = Array(market_names.length).fill(0);
+    //Now calculate the leaderboard for teams and for players
+    let leaderboard = gameData.teams
 
-            // Calculate the final prices for each card market
-            remainingCards = [1,2,3,4,5,6,7,8,9,10].filter(x => !gameData.rolls.includes(x))
-            market_prices[0] = Math.pow(
-                remainingCards.filter(x => x % 2 === 0).reduce((acc, curr) => acc + curr, 0),
-                2
-            );
+    for (const team of leaderboard) {
+        let newPlayers = [];
+        
+        // Iterate through each player UID in the team's player list
+        for (const player of team.players) {   
             
-            // 3's Market: Sum of multiples of 3 cubed
-            market_prices[1] = Math.pow(
-                remainingCards.filter(x => x % 3 === 0).reduce((acc, curr) => acc + curr, 0),
-                3
-            );
-            
-            // 4's Market: Product of all numbers greater than 4
-            let greaterThan4 = remainingCards.filter(x => x > 4);
-            market_prices[2] = greaterThan4.length > 0 ? greaterThan4.reduce((acc, curr) => acc * curr, 1) : 0;
-            
-            // 5's Market: Minimum of numbers 5 or below to the power of 5
-            let belowOrEqual5 = remainingCards.filter(x => x <= 5);
-            market_prices[3] = belowOrEqual5.length > 0 ? Math.pow(Math.min(...belowOrEqual5), 5) : 0;
-            
-            // 6's Market: Sum of numbers 6 or above multiplied by 6
-            market_prices[4] = remainingCards.filter(x => x >= 6).reduce((acc, curr) => acc + curr, 0) * 6;
-        } else {
-            throw new HttpsError("failed-precondition", "Game type not supported");
+            // Push the transformed player data into newPlayers array
+            newPlayers.push({
+                uid: player.uid,
+                email: player.email,
+                balance: 0  
+            });
+        }
+        
+        // Update the team's players array
+        team.players = newPlayers;
+    }
+
+    logger.log(JSON.stringify(leaderboard))
+
+    for(const market of market_names) {
+        const index = market_names.indexOf(market);
+        const marketDoc = await getFirestore().collection(collectionName).doc(gameID).collection('markets').doc(market).get();
+        const marketData = marketDoc.data();
+        for(order of marketData.filledOrders) {
+            let orderUser = order.user;
+            let orderTeam = order.teamName;
+            let orderPrice = order.price;
+            let deltaPrice = 0;
+
+            // if order price is too high round down
+            if(orderPrice > 1000000000) {
+                orderPrice = 1000000000
+            } 
+
+            if(orderPrice < 0) {
+                orderPrice = 0
+            }
+
+            deltaPrice = (market_prices[index] - orderPrice);
+
+            if(order.direction === "sell") {
+                deltaPrice = -deltaPrice;
+            }
+            let profit = order.shares * deltaPrice;
+
+            // get the team from the leaderboard
+            // Update team balance
+            const teamEntry = leaderboard.find(x => x.name === orderTeam);
+            if (teamEntry) {
+                teamEntry.balance += profit;
+            }
+
+            // Update player balance
+            const userEntry = leaderboard.find(x => x.name === orderTeam)?.players.find(x => x.uid === orderUser);
+            if (userEntry) {
+                userEntry.balance += profit;
+            } else {
+                logger.log(`Player with UID ${orderUser} not found in team ${orderTeam}`);
+            }
+
+            // Update player document
+            await getFirestore().collection('users').doc(orderUser).update({ balance: FieldValue.increment(profit) });
+        }
+    }
+
+    logger.log("Updating LEADERBOARD", JSON.stringify(leaderboard[0]))
+
+    // Update the leaderboard
+    await getFirestore().collection(collectionName).doc(gameID).update({ leaderboard: leaderboard });
+
+    //TODO: Update the global leaderboard with the values if the game is an official game
+
+    if (official) {
+        logger.log("Official game, updating global leaderboard");
+        //Get the leaderboard section
+        const leaderboardDoc = await getFirestore().collection('global_leaderboards').get();
+
+        // add leaderboard to the global leaderboard
+        const globalLeaderboardDoc = await getFirestore().collection('global_leaderboards').doc(leaderboardType).get();
+        const globalLeaderboardData = globalLeaderboardDoc.data();
+
+        if (!globalLeaderboardData) {
+            throw new HttpsError("not-found", "Global leaderboard not found");
         }
 
-        //Update the market documents with the final prices
-        for (const market of market_names) {
-            const index = market_names.indexOf(market);
-            logger.log(market_names, market_prices, index, game_type, market_prices[index]);
-            await getFirestore().collection(collectionName).doc(gameID).collection('markets').doc(market).update({ price: market_prices[index] });
-        }
-
-        //Now calculate the leaderboard for teams and for players
-        let leaderboard = gameData.teams
-
+        // Update global leaderboard teams
         for (const team of leaderboard) {
-            let newPlayers = [];
-            
-            // Iterate through each player UID in the team's player list
-            for (const player of team.players) {   
-                
-                // Push the transformed player data into newPlayers array
-                newPlayers.push({
-                    uid: player.uid,
-                    email: player.email,
-                    balance: 0  
-                });
+            const globalTeamIndex = globalLeaderboardData.teams.findIndex(t => t.name === team.name);
+            if (globalTeamIndex >= 0) {
+                globalLeaderboardData.teams[globalTeamIndex].balance += team.balance;
+            } else {
+                globalLeaderboardData.teams.push({ name: team.name, balance: team.balance });
             }
-            
-            // Update the team's players array
-            team.players = newPlayers;
         }
 
-        logger.log(JSON.stringify(leaderboard))
-
-        for(const market of market_names) {
-            const index = market_names.indexOf(market);
-            const marketDoc = await getFirestore().collection(collectionName).doc(gameID).collection('markets').doc(market).get();
-            const marketData = marketDoc.data();
-            for(order of marketData.filledOrders) {
-                let orderUser = order.user;
-                let orderTeam = order.teamName;
-                let orderPrice = order.price;
-                let deltaPrice = 0;
-
-                // if order price is too high round down
-                if(orderPrice > 1000000000) {
-                    orderPrice = 1000000000
-                } 
-
-                if(orderPrice < 0) {
-                    orderPrice = 0
-                }
-
-                deltaPrice = (market_prices[index] - orderPrice);
-
-                if(order.direction === "sell") {
-                    deltaPrice = -deltaPrice;
-                }
-                let profit = order.shares * deltaPrice;
-
-                // get the team from the leaderboard
-                // Update team balance
-                const teamEntry = leaderboard.find(x => x.name === orderTeam);
-                if (teamEntry) {
-                    teamEntry.balance += profit;
-                }
-
-                // Update player balance
-                const userEntry = leaderboard.find(x => x.name === orderTeam)?.players.find(x => x.uid === orderUser);
-                if (userEntry) {
-                    userEntry.balance += profit;
+        // Update global leaderboard players
+        for (const team of leaderboard) {
+            for (const player of team.players) {
+                const globalPlayerIndex = globalLeaderboardData.players.findIndex(p => p.uid === player.uid);
+                if (globalPlayerIndex >= 0) {
+                    globalLeaderboardData.players[globalPlayerIndex].balance += player.balance;
                 } else {
-                    logger.log(`Player with UID ${orderUser} not found in team ${orderTeam}`);
+                    globalLeaderboardData.players.push({ uid: player.uid, email: player.email, balance: player.balance });
                 }
-
-                // Update player document
-                await getFirestore().collection('users').doc(orderUser).update({ balance: FieldValue.increment(profit) });
             }
         }
 
-        logger.log("Updating LEADERBOARD", JSON.stringify(leaderboard[0]))
+        // Save the updated global leaderboard
+        await getFirestore().collection('global_leaderboards').doc(leaderboardType).set(globalLeaderboardData);
+        logger.log("Global leaderboard officially updated!");
 
-        // Update the leaderboard
-        await getFirestore().collection(collectionName).doc(gameID).update({ leaderboard: leaderboard });
-
-
-    } catch (error) {
-        logger.error("Error closing game:", error);
-        throw new HttpsError("internal", "Internal firebase error");
     }
 })
 
@@ -824,6 +862,7 @@ exports.createGameManual = onCall(async (request, response) => {
         await docRef.set({
             game_type: request.data.type,
             official: request.data.official,
+            season: request.data.season,
             status: "waiting",
             teams: [],
             start_time: null,
@@ -959,6 +998,8 @@ exports.closeGame = onCall(async (request) => {
       if (!gameData) {
         throw new HttpsError('not-found', 'Game data not found');
       }
+
+      const leaderboardType = gameData.season;
   
       let market_names = [];
       let market_prices = [];
@@ -1185,6 +1226,55 @@ exports.closeGame = onCall(async (request) => {
       await firestore.collection(collectionName).doc(gameID).update({ leaderboard: leaderboard });
   
       logger.log('Game closed and leaderboard updated successfully!');
+
+      if (official) {
+            logger.log("Official game, updating global leaderboard");
+            //Get the leaderboard section
+            const leaderboardDoc = await getFirestore().collection('global_leaderboards').get();
+
+            // add leaderboard to the global leaderboard
+            const globalLeaderboardDoc = await getFirestore().collection('global_leaderboards').doc(leaderboardType).get();
+            const globalLeaderboardData = globalLeaderboardDoc.data();
+
+            if (!globalLeaderboardData) {
+                throw new HttpsError("not-found", "Global leaderboard not found");
+            }
+            
+            if (!globalLeaderboardData.teams) {
+                globalLeaderboardData.teams = [];
+            }
+            
+            if (!globalLeaderboardData.players) {
+                globalLeaderboardData.players = [];
+            }
+
+            // Update global leaderboard teams
+            for (const team of leaderboard) {
+                const globalTeamIndex = globalLeaderboardData.teams.findIndex(t => t.name === team.name);
+                if (globalTeamIndex >= 0) {
+                    globalLeaderboardData.teams[globalTeamIndex].balance += team.balance;
+                } else {
+                    globalLeaderboardData.teams.push({ name: team.name, balance: team.balance });
+                }
+            }
+
+            // Update global leaderboard players
+            for (const team of leaderboard) {
+                for (const player of team.players) {
+                    const globalPlayerIndex = globalLeaderboardData.players.findIndex(p => p.uid === player.uid);
+                    if (globalPlayerIndex >= 0) {
+                        globalLeaderboardData.players[globalPlayerIndex].balance += player.balance;
+                    } else {
+                        globalLeaderboardData.players.push({ uid: player.uid, email: player.email, balance: player.balance });
+                    }
+                }
+            }
+
+            // Save the updated global leaderboard
+            await getFirestore().collection('global_leaderboards').doc(leaderboardType).set(globalLeaderboardData);
+            logger.log("Global leaderboard officially updated!");
+
+        }
     } catch (error) {
       logger.error('Error closing game:', error);
       throw new HttpsError('internal', 'Internal server error');

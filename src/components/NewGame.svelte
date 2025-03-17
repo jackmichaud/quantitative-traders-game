@@ -4,10 +4,12 @@
     let official = false 
     let gameType;
 
+    let season = "Spring2025"
+
     let submitted = false
 
     async function create() {
-        createGame({"type": gameType, "official": official})
+        createGame({"type": gameType, "official": official, "season": season})
             .then((response) => alert(response.data))
             .catch((error) => alert(error.message))
     }
@@ -25,6 +27,14 @@
     <label class="text-xl mt-4">
         Official Game? 
         <input bind:value|preventDefault={official} type="checkbox"/>
+    </label>
+
+    <label class="text-xl mt-4">
+        Leaderboard Season:
+        <select bind:value|preventDefault={season} name="Game Type" class="text-xl rounded-md text-black">
+            <option value="Spring2025">Spring 2025</option>
+            <option value="TournamentSpring2025">Trading Competition 2025</option>
+        </select>
     </label>
     
     {#if !submitted}

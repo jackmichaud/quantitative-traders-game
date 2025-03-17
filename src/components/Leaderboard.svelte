@@ -1,19 +1,41 @@
 <script>
-    export let teamData = {name: "", players: [{}]}
+    import { dbHandler } from '../stores/dataStore';
 
     let isExpanded = true
 
     let selected_leaderboard = ""
 
-    let leaderboards = ["Spring 2025", "Tournament"]
+    let leaderboards = ["Spring2025", "TournamentSpring2025"]
 
     let leaderboardView = "teams"
 
-    function manage_leaderboard_change() {
-        if(selected_leaderboard !== undefined && selected_leaderboard !== null) {
-            console.log(selected_leaderboard)
+    // make a function that fetches the leaderboard data when selected_leaderboard or leaderboardView changes
+    import { onMount } from 'svelte';
+
+    let leaderboardData = [];
+
+    async function fetchLeaderboardData() {
+        if(selected_leaderboard.length < 3) return;
+        console.log("Fetching leaderboard data: ", selected_leaderboard)
+        try {
+            let leaderboardDoc = await dbHandler.getDoc("global_leaderboards", selected_leaderboard)
+            if(leaderboardDoc.exists()) {
+                if(leaderboardView === 'teams') {
+                    leaderboardData = leaderboardDoc.data().teams
+                } else {
+                    leaderboardData = leaderboardDoc.data().players
+                }
+            }
+            console.log(leaderboardData)
+        } catch (error) {
+            console.error('Error fetching leaderboard data:', error);
         }
     }
+
+    $: selected_leaderboard, fetchLeaderboardData();
+
+    onMount(fetchLeaderboardData);
+
 </script>
 
 <div class="border-white border rounded-md mb-2">
@@ -32,7 +54,7 @@
     <div class="bg-slate-700 content-evenly text-center items-center rounded-t-md border-b p-2 flex justify-between">
         <div class="justify-center items-center flex">
             <h1 class="text-white font-semibold text-md mr-2">Competition:</h1>
-            <select bind:value={selected_leaderboard} on:change={manage_leaderboard_change} name="markets" id="market" class="bg-slate-700 border rounded-md p-2 text-white text-md  hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transition-transform duration-150">
+            <select bind:value={selected_leaderboard} name="markets" id="market" class="bg-slate-700 border rounded-md p-2 text-white text-md  hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transition-transform duration-150">
                 {#each leaderboards as leaderboard}
                     <option value={leaderboard}>{leaderboard}</option>
                 {/each}
@@ -52,18 +74,52 @@
         </div>
     </div>
     {#if isExpanded}
-        {#each teamData.players as player}
-            <div class="flex justify-between items-center bg-slate-600 border-y hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
-                <h1 class="text-white
-                            font-semibold
-                            text-md
-                            text-center
-                            py-1
-                            flex-grow
-                            ">
-                    
-                </h1>
-            </div>
-        {/each}
+        {#if leaderboardView == 'teams'}
+            {#each leaderboardData as team}
+                <div class="flex justify-between items-center bg-slate-600 border-y hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
+                    <h1 class="text-white
+                                font-semibold
+                                text-md
+                                text-center
+                                py-1
+                                flex-grow
+                                ">
+                        {team.name}
+                    </h1>
+                    <h1 class="text-white
+                                font-semibold
+                                text-md
+                                text-center
+                                py-1
+                                flex-grow
+                                ">
+                        {team.balance}
+                    </h1>
+                </div>
+            {/each}
+        {:else if leaderboardView == 'individual'}
+            {#each leaderboardData as player}
+                <div class="flex justify-between items-center bg-slate-600 border-y hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
+                    <h1 class="text-white
+                                font-semibold
+                                text-md
+                                text-center
+                                py-1
+                                flex-grow
+                                ">
+                            {player.email}
+                    </h1>
+                    <h1 class="text-white
+                                font-semibold
+                                text-md
+                                text-center
+                                py-1
+                                flex-grow
+                                ">
+                            {player.balance}
+                    </h1>
+                </div>
+            {/each}
+        {/if}
     {/if}
 </div>
