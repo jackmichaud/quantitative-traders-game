@@ -8,7 +8,7 @@
     let errorMessage = ""; // Stores error messages
     let loading = false; // Track the loading state
 
-    const teams = ["RANGERS", "ACES", "PHEONIX", "HYDRAS", "ROOKS", "OUTLAWS", "TITANS", "APEX", "VENOM", "SABRES"]
+    const teams = ["RANGERS", "ACES", "PHEONIX", "HYDRAS", "ROOKS", "OUTLAWS", "TITANS", "APEX", "VENOM", "SABRES", "PIRATES", "GLADIATORS"]
 
     const dispatch = createEventDispatcher()
 

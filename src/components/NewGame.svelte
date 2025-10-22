@@ -4,7 +4,7 @@
     let official = false 
     let gameType;
 
-    let season = "Spring2025"
+    let season = "Fall2025"
 
     let submitted = false
 
@@ -34,6 +34,7 @@
         <select bind:value|preventDefault={season} name="Game Type" class="text-xl rounded-md text-black">
             <option value="Spring2025">Spring 2025</option>
             <option value="TournamentSpring2025">Trading Competition 2025</option>
+            <option value="Fall2025">Fall 2025</option>
         </select>
     </label>
     
