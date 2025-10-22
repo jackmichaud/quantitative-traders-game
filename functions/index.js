@@ -1060,99 +1060,102 @@ exports.closeGame = onCall(async (request) => {
           .filter((x) => x >= 6)
           .reduce((acc, curr) => acc + curr, 0);
         market_prices[4] = sum6OrAbove * 6; // 6's Market
-      } else {
+        } else {
         throw new HttpsError('failed-precondition', 'Game type not supported');
-      }
-  
-      // Update the market documents with final prices
-      const marketRefs = market_names.map((market) =>
+        }
+
+        // Update the market documents with final prices
+        const marketRefs = market_names.map((market) =>
         firestore.collection(collectionName).doc(gameID).collection('markets').doc(market)
-      );
-  
-      const marketDocs = await firestore.getAll(...marketRefs);
-  
-      // Prepare batch update for market prices
-      const batch = firestore.batch();
-  
-      for (let i = 0; i < marketRefs.length; i++) {
+        );
+
+        const marketDocs = await firestore.getAll(...marketRefs);
+
+        // Prepare batch update for market prices
+        const batch = firestore.batch();
+
+        for (let i = 0; i < marketRefs.length; i++) {
         const marketRef = marketRefs[i];
         const price = market_prices[i];
         batch.update(marketRef, { price: price });
-      }
+        }
+
+        await batch.commit();
   
-      await batch.commit();
-  
-      // Collect all filled orders from all markets
-      const filledOrders = [];
-  
-      for (let i = 0; i < marketDocs.length; i++) {
+        // Collect all filled orders from all markets
+        const filledOrders = [];
+
+        for (let i = 0; i < marketDocs.length; i++) {
         const marketDoc = marketDocs[i];
         const marketData = marketDoc.data();
         if (marketData && Array.isArray(marketData.filledOrders)) {
-          for (let order of marketData.filledOrders) {
+            for (let order of marketData.filledOrders) {
             order.marketIndex = i; // Keep track of the market index
             filledOrders.push(order);
-          }
+            }
         } else {
-          logger.warn(`No filled orders in market: ${market_names[i]}`);
+            logger.warn(`No filled orders in market: ${market_names[i]}`);
         }
-      }
+        }
   
-      // Collect all unique user UIDs and team names
-      const userUIDs = new Set();
-      const teamNames = new Set();
-  
-      for (let order of filledOrders) {
+        // Collect all unique user UIDs and team names
+        const userUIDs = new Set();
+        const teamNames = new Set();
+
+        for (let order of filledOrders) {
         userUIDs.add(order.user);
         teamNames.add(order.teamName);
-      }
+        }
   
-      // Batch get user documents
-      const userRefs = Array.from(userUIDs).map((uid) => firestore.collection('users').doc(uid));
-      if(userRefs.length === 0) {
+        // Batch get user documents
+        const userRefs = Array.from(userUIDs).map((uid) => firestore.collection('users').doc(uid));
+
+        let userDocs = [];
+        if (userRefs.length === 0) {
         logger.warn('No user documents to fetch');
-      }
-      const userDocs = await firestore.getAll(...userRefs);
-  
-      // Create a map of user data
-      const userMap = {};
-      for (let i = 0; i < userDocs.length; i++) {
+        } else {
+        userDocs = await firestore.getAll(...userRefs);
+        }
+
+        // Create a map of user data
+        const userMap = {};
+        for (let i = 0; i < userDocs.length; i++) {
         const uid = userRefs[i].id;
         userMap[uid] = userDocs[i].data();
-      }
+        }
   
-      // Prepare leaderboard
-      const leaderboard = gameData.teams || [];
-  
-      // Create a map of teams in leaderboard
-      const teamMap = {};
-      for (let team of leaderboard) {
-        teamMap[team.name] = team;
-        // Initialize team balance if not present
-        if (typeof team.balance !== 'number') {
-          team.balance = 0;
+        // Prepare leaderboard
+        const leaderboard = gameData.teams || [];
+
+        // Create a map of teams in leaderboard
+        const teamMap = {};
+        for (let team of leaderboard) {
+            teamMap[team.name] = team;
+            // Initialize team balance if not present
+            if (typeof team.balance !== 'number') {
+                team.balance = 0;
+            }
+            // Fetch player data
+            const newPlayers = [];
+            for (let player of team.players) {
+                const playerData = userMap[player.uid];
+                if (playerData) {
+                newPlayers.push({
+                    uid: player.uid,
+                    email: playerData.email,
+                    balance: 0, // Initialize balance
+                });
+                } else {
+                logger.warn(`Player data not found for UID: ${player.uid}`);
+                }
+            }
+            team.players = newPlayers;
+            // Create a map for players in the team
+            team.playerMap = {};
+            for (let player of team.players) {
+                team.playerMap[player.uid] = player;
+            }
         }
-        // Fetch player data
-        const newPlayers = [];
-        for (let player of team.players) {
-          const playerData = userMap[player.uid];
-          if (playerData) {
-            newPlayers.push({
-              uid: player.uid,
-              email: playerData.email,
-              balance: 0, // Initialize balance
-            });
-          } else {
-            logger.warn(`Player data not found for UID: ${player.uid}`);
-          }
-        }
-        team.players = newPlayers;
-        // Create a map for players in the team
-        team.playerMap = {};
-        for (let player of team.players) {
-          team.playerMap[player.uid] = player;
-        }
-      }
   
       // Process orders and calculate profits
       const userProfits = {}; // Map of user UID to profit
