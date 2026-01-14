@@ -3,21 +3,41 @@ const { HttpsError } = require("firebase-functions/v2/https");
 const { getGameImpl } = require("../games/registry");
 const { newId } = require("../utils/ids");
 
-async function createGame({ type, season, visibility }) {
+async function createGame({ uid, type, season, visibility }) {
   const impl = getGameImpl(type);
 
-  const gameId = `${type}-${newId().slice(0, 8)}`; // friendly id
+  const vis = visibility || "unofficial";
+  if (!["official", "unofficial"].includes(vis)) {
+    throw new HttpsError("invalid-argument", "visibility must be 'official' or 'unofficial'");
+  }
+  if (vis === "official" && (!season || typeof season !== "string" || !season.trim())) {
+    throw new HttpsError("invalid-argument", "season is required for official games");
+  }
+
+  const gameId = `${type}-${newId().slice(0, 8)}`;
   const gameRef = db.collection("games").doc(gameId);
 
   const gameDoc = {
     type,
-    season: season || null,
-    visibility: visibility || "unofficial", // "official"|"unofficial"
+    season: vis === "official" ? season.trim() : (season?.trim() || null),
+    visibility: vis,
     status: "waiting",
+    hostUid: uid,                 // optional: only host can start/close later
     createdAt: Timestamp.now(),
     startAt: null,
     closedAt: null,
+
+    // game-specific evolving state
     rolls: [],
+
+    // output artifacts
+    leaderboard: [],
+
+    // settlement control / idempotency
+    settlement: null,
+
+    // optional future-proof flags
+    rosterLocked: false,
   };
 
   const batch = db.batch();
@@ -46,13 +66,16 @@ async function joinGame({ uid, gameId, teamName, userEmail }) {
   await db.runTransaction(async (tx) => {
     const gameSnap = await tx.get(gameRef);
     if (!gameSnap.exists) throw new HttpsError("not-found", "Game not found.");
-
     const game = gameSnap.data();
+
     if (game.status !== "waiting") {
       throw new HttpsError("failed-precondition", "Game already started.");
     }
+    if (game.rosterLocked) {
+      throw new HttpsError("failed-precondition", "Roster locked.");
+    }
 
-    // If user already in a game, block (prevents multi-join issues)
+    // user must not already be in a game
     const userRef = db.collection("users").doc(uid);
     const userSnap = await tx.get(userRef);
     const user = userSnap.data() || {};
@@ -60,7 +83,7 @@ async function joinGame({ uid, gameId, teamName, userEmail }) {
       throw new HttpsError("failed-precondition", "User already in a game.");
     }
 
-    // Find or create team by name (simple approach: query by exact name)
+    // Find or create team by name
     const teamsQuery = gameRef.collection("teams").where("name", "==", teamName).limit(1);
     const teamsSnap = await tx.get(teamsQuery);
 
@@ -77,9 +100,11 @@ async function joinGame({ uid, gameId, teamName, userEmail }) {
     tx.set(playerRef, { email: userEmail || null, pnl: 0, joinedAt: Timestamp.now() }, { merge: true });
 
     // Update user currentGame
-    tx.set(userRef, { currentGame: { gameId, teamId: teamRef.id }, email: userEmail || user.email || null }, { merge: true });
+    tx.set(userRef, {
+      email: userEmail || user.email || null,
+      currentGame: { gameId, teamId: teamRef.id }
+    }, { merge: true });
 
-    // Event
     tx.create(gameRef.collection("events").doc(), {
       type: "PLAYER_JOINED",
       createdAt: Timestamp.now(),
@@ -104,19 +129,19 @@ async function leaveGame({ uid }) {
     const gameRef = db.collection("games").doc(cg.gameId);
     const gameSnap = await tx.get(gameRef);
     if (!gameSnap.exists) throw new HttpsError("not-found", "Game not found.");
-
     const game = gameSnap.data();
+
     if (game.status !== "waiting") {
       throw new HttpsError("failed-precondition", "Cannot leave after game starts.");
+    }
+    if (game.rosterLocked) {
+      throw new HttpsError("failed-precondition", "Roster locked.");
     }
 
     const teamRef = gameRef.collection("teams").doc(cg.teamId);
     const playerRef = teamRef.collection("players").doc(uid);
 
-    // remove player doc
     tx.delete(playerRef);
-
-    // clear currentGame
     tx.update(userRef, { currentGame: null });
 
     tx.create(gameRef.collection("events").doc(), {
@@ -130,10 +155,8 @@ async function leaveGame({ uid }) {
 }
 
 async function startGame({ uid }) {
-  // Any player can start; you can add “host/admin” logic later.
   const userSnap = await db.collection("users").doc(uid).get();
-  const user = userSnap.data();
-  const cg = user?.currentGame;
+  const cg = userSnap.data()?.currentGame;
   if (!cg?.gameId) throw new HttpsError("failed-precondition", "User not in a game.");
 
   const gameRef = db.collection("games").doc(cg.gameId);
@@ -141,11 +164,21 @@ async function startGame({ uid }) {
   await db.runTransaction(async (tx) => {
     const gameSnap = await tx.get(gameRef);
     if (!gameSnap.exists) throw new HttpsError("not-found", "Game not found.");
-
     const game = gameSnap.data();
-    if (game.status !== "waiting") throw new HttpsError("failed-precondition", "Game not in waiting status.");
 
-    tx.update(gameRef, { status: "active", startAt: Timestamp.now() });
+    if (game.status !== "waiting") {
+      throw new HttpsError("failed-precondition", "Game not in waiting status.");
+    }
+
+    // Optional: enforce only host can start
+    // if (game.hostUid && game.hostUid !== uid) throw new HttpsError("permission-denied", "Only host can start.");
+
+    tx.update(gameRef, {
+      status: "active",
+      startAt: Timestamp.now(),
+      rosterLocked: true, // ✅ freeze roster now that game started
+    });
+
     tx.create(gameRef.collection("events").doc(), {
       type: "GAME_STARTED",
       createdAt: Timestamp.now(),
@@ -156,31 +189,4 @@ async function startGame({ uid }) {
   return { ok: true };
 }
 
-async function tickGame({ uid }) {
-  const userSnap = await db.collection("users").doc(uid).get();
-  const cg = userSnap.data()?.currentGame;
-  if (!cg?.gameId) throw new HttpsError("failed-precondition", "User not in a game.");
-
-  const gameRef = db.collection("games").doc(cg.gameId);
-
-  await db.runTransaction(async (tx) => {
-    const gameSnap = await tx.get(gameRef);
-    if (!gameSnap.exists) throw new HttpsError("not-found", "Game not found.");
-
-    const game = gameSnap.data();
-    if (game.status !== "active") throw new HttpsError("failed-precondition", "Game not active.");
-
-    const impl = getGameImpl(game.type);
-    const { rolls, event } = impl.tick({ game });
-
-    tx.update(gameRef, { rolls });
-
-    if (event) {
-      tx.create(gameRef.collection("events").doc(), { ...event, createdAt: Timestamp.now() });
-    }
-  });
-
-  return { ok: true };
-}
-
-module.exports = { createGame, joinGame, leaveGame, startGame, tickGame };
+module.exports = { createGame, joinGame, leaveGame, startGame };

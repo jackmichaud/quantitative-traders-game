@@ -9,11 +9,11 @@ const settlementService = require("../services/settlementService");
 
 exports.createGame = onCall(async (req) => {
   try {
-    requireAuth(req);
+    const uid = requireAuth(req);
     const type = requireString(req.data.type, "type");
     const season = req.data.season ?? null;
     const visibility = req.data.visibility ?? "unofficial";
-    return await gameService.createGame({ type, season, visibility });
+    return await gameService.createGame({ uid, type, season, visibility });
   } catch (e) {
     throw toHttpsError(e);
   }
