@@ -21,6 +21,7 @@
 	"type": "module",
 	"dependencies": {
 		"@google-cloud/tasks": "^5.5.0",
+		"caniuse-lite": "^1.0.30001756",
 		"d3": "^7.9.0",
 		"firebase": "^10.12.2",
 		"firebase-functions": "^6.0.1"
