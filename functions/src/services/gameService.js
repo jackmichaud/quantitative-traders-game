@@ -131,12 +131,12 @@ async function leaveGame({ uid }) {
     if (!gameSnap.exists) throw new HttpsError("not-found", "Game not found.");
     const game = gameSnap.data();
 
-    if (game.status !== "waiting") {
-      throw new HttpsError("failed-precondition", "Cannot leave after game starts.");
-    }
-    if (game.rosterLocked) {
-      throw new HttpsError("failed-precondition", "Roster locked.");
-    }
+    // if (game.status !== "waiting") {
+    //   throw new HttpsError("failed-precondition", "Cannot leave after game starts.");
+    // }
+    // if (game.rosterLocked) {
+    //   throw new HttpsError("failed-precondition", "Roster locked.");
+    // }
 
     const teamRef = gameRef.collection("teams").doc(cg.teamId);
     const playerRef = teamRef.collection("players").doc(uid);
@@ -189,4 +189,47 @@ async function startGame({ uid }) {
   return { ok: true };
 }
 
-module.exports = { createGame, joinGame, leaveGame, startGame };
+async function tickGame(gameId) {
+  const gameRef = db.collection("games").doc(gameId);
+
+  return db.runTransaction(async (tx) => {
+    // ✅ READS FIRST
+    const gameSnap = await tx.get(gameRef);
+    if (!gameSnap.exists) throw new Error("Game not found");
+
+    const game = { id: gameSnap.id, ...gameSnap.data() };
+
+    const typeModule = getTypeModule(game.type);
+
+    // call your type tick
+    const { event, ...patch } = typeModule.tick({ game });
+
+    // build updates
+    const updates = { ...patch };
+
+    // if you store events on the game doc:
+    if (event) {
+      updates.events = admin.firestore.FieldValue.arrayUnion({
+        ...event,
+        ts: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    // ✅ WRITES AFTER
+    tx.update(gameRef, updates);
+
+    // return something useful to caller
+    return { gameId, updates, event };
+  });
+}
+
+module.exports = { createGame, joinGame, leaveGame, startGame, tickGame };
+
+// Helpers
+
+function getTypeModule(type) {
+  const mod = typeModules[type];
+  if (!mod) throw new Error(`Unknown game type: ${type}`);
+  if (typeof mod.tick !== "function") throw new Error(`Game type "${type}" does not implement tick()`);
+  return mod;
+}

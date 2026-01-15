@@ -1,9 +1,11 @@
 <script>
     export let bids = []
     export let asks = []
-    export let team_name
+    export let teamId
 
     let isExpanded = true
+
+    console.log(teamId)
 </script>
 
 <div class="border-white border rounded-md">
@@ -26,8 +28,8 @@
                 {#if bids.length > 0}
                     {#each bids as bid}
                         <h1 
-                            class="{bid.teamName === team_name ? 'bg-slate-600' : 'bg-slate-500'} text-sm font-semibold text-white text-center py-1 hover:scale-105 hover:shadow-lg transform transition-transform duration-150 bg-slate-500 border-y border-dashed">
-                            {bid.shares} x ${bid.price}
+                            class="{bid.teamId === teamId ? 'bg-slate-600' : 'bg-slate-500'} text-sm font-semibold text-white text-center py-1 hover:scale-105 hover:shadow-lg transform transition-transform duration-150 bg-slate-500 border-y border-dashed">
+                            {bid.sharesRemaining} x ${bid.price}
                         </h1>
                     {/each}
                 {/if}
@@ -36,8 +38,8 @@
                 {#if asks.length > 0}
                     {#each asks as ask}
                         <h1 
-                            class="{ask.teamName === team_name ? 'bg-slate-600' : 'bg-slate-500'} text-sm font-semibold text-white text-center py-1 hover:scale-105 hover:shadow-lg transform transition-transform duration-150 bg-slate-500 border-y border-dashed">
-                            {ask.shares} x ${ask.price}
+                            class="{ask.teamId === teamId ? 'bg-slate-600' : 'bg-slate-500'} text-sm font-semibold text-white text-center py-1 hover:scale-105 hover:shadow-lg transform transition-transform duration-150 bg-slate-500 border-y border-dashed">
+                            {ask.sharesRemaining} x ${ask.price}
                         </h1>
                     {/each}
                 {/if}

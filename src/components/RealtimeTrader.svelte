@@ -385,7 +385,7 @@
 
     <OrderBook bind:bids={market_data.buyOrders}
                bind:asks={market_data.sellOrders}
-               bind:team_name={team_name} />
+               bind:teamId={teamId} />
   </div>
 
   {#if game_state === "closed"}

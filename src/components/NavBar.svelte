@@ -7,6 +7,7 @@
     import JoinGame from "./JoinGame.svelte";
     import { startGame, tickGame, closeGame } from "../lib/cloud_functions";
     import LeaveGame from "./LeaveGame.svelte";
+    import { hostGame } from "../lib/game_logic"
 
     let showModal = "closed";
     let email;
@@ -22,29 +23,21 @@
         await startGame().catch((error) => {alert(error.message) ; errorOccured = true})
         if(errorOccured) return;
 
+        // TODO: get numIterations from game config
         let numIterations = 0;
-        if(currentGame.type == "dice") {
+        if(currentGame.gameId.startsWith("dice")) {
             numIterations = 5;
-        } else if (currentGame.type == "cards") {
+        } else if (currentGame.gameId.startsWith("cards")) {
             numIterations = 6;
         }
 
-        for(let i = 0; i < numIterations; i++) {  
-            await new Promise(resolve => setTimeout(resolve, 60000));
+        await hostGame(currentGame.gameId, numIterations);
 
-            await tickGame().catch((error) => alert(error.message))
-            
-        }
+        // await closeGame().catch((error) => alert(error.message))
 
-        await closeGame().catch((error) => alert(error.message))
+        // await new Promise(resolve => setTimeout(resolve, 60000));
 
-        await new Promise(resolve => setTimeout(resolve, 60000));
-
-        await closeGame().catch((error) => alert(error.message))
-    }
-
-    async function recalculate() {
-        await closeGame().catch((error) => alert(error.message));
+        // await closeGame().catch((error) => alert(error.message))
     }
     
 </script>
