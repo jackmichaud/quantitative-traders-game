@@ -5,16 +5,16 @@
     import { dbHandler } from "../stores/dataStore";
     import NewGame from "./NewGame.svelte";
     import JoinGame from "./JoinGame.svelte";
-    import { startGame, tickGame, closeGame, createGame, joinGame } from "../lib/cloud_functions";
+    import { startGame, tickGame, closeGame } from "../lib/cloud_functions";
     import LeaveGame from "./LeaveGame.svelte";
 
     let showModal = "closed";
     let email;
-    let game = {type: "none", gameID: null, teamName: null}
+    let currentGame = {gameId: null, teamName: null}
 
     authStore.subscribe((curr) => {
         email = curr?.currentUser?.email
-        game = curr?.game
+        currentGame = curr?.currentGame
     })
 
     async function start() {
@@ -23,9 +23,9 @@
         if(errorOccured) return;
 
         let numIterations = 0;
-        if(game.type == "dice") {
+        if(currentGame.type == "dice") {
             numIterations = 5;
-        } else if (game.type == "cards") {
+        } else if (currentGame.type == "cards") {
             numIterations = 6;
         }
 
@@ -46,9 +46,8 @@
     async function recalculate() {
         await closeGame().catch((error) => alert(error.message));
     }
-
-    console.log(game)
     
+    $: console.log("Current game:", currentGame)
 </script>
 
 <header class="sticky flex py-2 items-center bg-slate-700 font-semibold text-4xl text-white border-b border-white justify-between">
@@ -66,17 +65,18 @@
     </button>
     {#if $authStore.currentUser}
 
-        {#if game?.gameID !== null && game?.gameID !== undefined && game?.gameID.length > 3}
+        {#if currentGame?.gameId !== null && currentGame?.gameId !== undefined && currentGame?.gameId.length > 3}
             <!--In Game-->
             <button on:click={() => showModal = "leave"} class="mr-4 text-lg border p-2 rounded-md hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Leave game</button>
 
+            <!--Admin only TODO: make this a proper admin check-->
             {#if $authStore.currentUser.uid === "66Q8I5XwY0TChOmSUWoYM5nEaB32"}
                 <button on:click={start} class="mr-4 text-lg border p-2 rounded-md hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Start game</button>
             {/if}
 
             {#if showModal === "leave"}
                 <Modal title="Leave" on:close={() => showModal = "closed"}>
-                    <LeaveGame bind:game_id={game.gameID} on:leaveGame={() => showModal = "closed"}/>
+                    <LeaveGame bind:game_id={currentGame.gameId} on:leaveGame={() => showModal = "closed"}/>
                 </Modal>
             {/if}
 

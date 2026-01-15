@@ -2,8 +2,8 @@
     import { onMount } from 'svelte';
     import { cubicOut } from 'svelte/easing';
     import { quintOut } from 'svelte/easing';
-    import { dbHandler } from '../../stores/dataStore';
-    import { authHandler, authStore } from '../../stores/authStore';
+    import { dbHandler } from '../stores/dataStore';
+    import { authHandler, authStore } from '../stores/authStore';
     import { deleteDoc } from 'firebase/firestore';
 
     $: innerWidth = 0;

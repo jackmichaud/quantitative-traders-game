@@ -11,16 +11,16 @@
     onMount(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             
-            let game = {type: "none", gameID: null, teamName: null}
+            let currentGame = {gameID: null, teamName: null}
             if(user) {
                 let player = await dbHandler.getDoc("users", user.uid)
                 if(player) {
-                    game = player.data().game
+                    currentGame = player.data().currentGame
                 }
             }
 
             authStore.update((current) => {
-                return {...current, isLoading: false, currentUser: user, game: game}
+                return {...current, isLoading: false, currentUser: user, currentGame: currentGame}
             })
 
             if(browser && !$authStore?.currentUser && !$authStore.isLoading && window.location.pathname !== '/') {
@@ -30,6 +30,7 @@
         })
         return unsubscribe
     });
+    
 </script>
 
 <NavBar/>
