@@ -38,7 +38,7 @@
     console.log(orders)
 </script>
 
-<div class="border-white border rounded-md mt-2">
+<div class="border-white border rounded-md mt-2 shadow-black shadow-md">
     <div class="bg-slate-700 content-evenly text-center items-center rounded-t-md border-b p-2 {isExpanded ? 'rounded-b-none border-b' : 'rounded-b-md border-none'} flex justify-between">
         <h1 class="text-white text-center font-semibold text-md">Orders</h1>
 

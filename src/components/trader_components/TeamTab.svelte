@@ -2,7 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import MarketSelector from "./MarketSelector.svelte";
 
-    export let profit_loss = 0
+    // export let profit_loss = 0
     export let markets = []
     export let selected_market
     export let start_time = null
@@ -42,7 +42,7 @@
 
 </script>
 
-<div class="border bg-slate-700 p-2 rounded-md flex justify-between items-center text-sm text-black font-semibold">
+<div class="border bg-slate-700 p-2 rounded-md flex justify-between items-center text-sm text-black font-semibold shadow-black shadow-md">
     <div class="flex">
         <h1 class="text-white font-semibold py-2 text-sm mr-2 md:hidden">Time:</h1>
         <h1 class="text-white font-semibold py-2 text-sm mr-2 hidden md:block">Time Remaining:</h1>

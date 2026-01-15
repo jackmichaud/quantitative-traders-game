@@ -42,7 +42,7 @@
     }
 </script>
 
-<div class="border-white border rounded-md mt-2">
+<div class="border-white border rounded-md mt-2 shadow-black shadow-md">
     <!-- Loading Overlay -->
     {#if awaiting_update}
         <div class="loading-overlay">

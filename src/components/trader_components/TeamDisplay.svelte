@@ -4,9 +4,9 @@
     let isExpanded = true
 </script>
 
-<div class="border-white border rounded-md mb-2">
+<div class="border-white border rounded-md mb-2 shadow-black shadow-md">
     <div class="bg-slate-700 rounded-t-md {isExpanded ? 'rounded-b-none border-b' : 'rounded-b-md border-none'} flex justify-between items-center px-4 py-2">
-        <!-- Title -->
+        <!-- Title --> 
         <h1 class="text-center text-white font-semibold text-md italic">
             {teamData.name}
         </h1>

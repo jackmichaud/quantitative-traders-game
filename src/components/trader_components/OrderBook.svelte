@@ -8,7 +8,7 @@
     console.log(teamId)
 </script>
 
-<div class="border-white border rounded-md">
+<div class="border-white border rounded-md shadow-black shadow-md">
     <div class="bg-slate-700 rounded-t-md {isExpanded ? 'rounded-b-none border-b ' : 'rounded-b-md'} flex justify-between items-center px-4">
         <h1 class="text-center text-white font-semibold py-2 text-md">Order Book</h1>
 
