@@ -47,7 +47,6 @@
         await closeGame().catch((error) => alert(error.message));
     }
     
-    $: console.log("Current game:", currentGame)
 </script>
 
 <header class="sticky flex py-2 items-center bg-slate-700 font-semibold text-4xl text-white border-b border-white justify-between">

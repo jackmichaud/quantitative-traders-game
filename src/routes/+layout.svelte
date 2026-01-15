@@ -1,39 +1,62 @@
 <script>
-    import "../app.css";
+  import "../app.css";
+  import { onMount } from "svelte";
+  import { browser } from "$app/environment";
 
-    import { onMount } from 'svelte';
-    import { auth } from '../lib/firebase/firebase.client'
-    import { authStore } from '../stores/authStore'
-    import { dbHandler } from '../stores/dataStore'
-    import { browser } from '$app/environment'
-    import NavBar from "../components/NavBar.svelte";
+  import { auth, db } from "../lib/firebase/firebase.client";
+  import { authStore } from "../stores/authStore";
+  import { doc, onSnapshot } from "firebase/firestore";
 
-    onMount(() => {
-        const unsubscribe = auth.onAuthStateChanged(async (user) => {
-            
-            let currentGame = {gameID: null, teamName: null}
-            if(user) {
-                let player = await dbHandler.getDoc("users", user.uid)
-                if(player) {
-                    currentGame = player.data().currentGame
-                }
-            }
+  import { get } from "svelte/store";
 
-            authStore.update((current) => {
-                return {...current, isLoading: false, currentUser: user, currentGame: currentGame}
-            })
+  import NavBar from "../components/NavBar.svelte";
 
-            if(browser && !$authStore?.currentUser && !$authStore.isLoading && window.location.pathname !== '/') {
-                window.location.href = '/';
-            }
+  onMount(() => {
+    let userDocUnsub = null;
 
-        })
-        return unsubscribe
+    const authUnsub = auth.onAuthStateChanged((user) => {
+      // stop previous user listener
+      if (userDocUnsub) {
+        userDocUnsub();
+        userDocUnsub = null;
+      }
+
+      // Always update user + loading first
+      authStore.update((current) => ({
+        ...current,
+        isLoading: false,
+        currentUser: user,
+        currentGame: null
+      }));
+
+      // Redirect logic (optional) — do this after store update
+      if (browser) {
+        const { currentUser, isLoading } = get(authStore); // see note below
+        if (!currentUser && !isLoading && window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
+      }
+
+      if (!user) return;
+
+      // Realtime subscription to users/{uid}
+      userDocUnsub = onSnapshot(doc(db, "users", user.uid), (snap) => {
+        const data = snap.data() || {};
+        authStore.update((current) => ({
+          ...current,
+          currentGame: data.currentGame ?? null
+        }));
+      });
     });
-    
+
+    return () => {
+      if (userDocUnsub) userDocUnsub();
+      authUnsub();
+    };
+  });
 </script>
 
-<NavBar/>
+<NavBar />
 <body class="bg-slate-400">
-    <slot/>
+  <slot />
 </body>
