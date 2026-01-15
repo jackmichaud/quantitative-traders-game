@@ -42,6 +42,7 @@
   let asksUnsub = noop;
   let openOrdersUnsub = noop;
   let tradesUnsub = noop;
+  let newsUnsub = noop;
 
   // ---------- User/game identity ----------
   let uid = null;
@@ -102,6 +103,7 @@
     gameUnsub(); gameUnsub = noop;
     teamUnsub(); teamUnsub = noop;
     teamPlayersUnsub(); teamPlayersUnsub = noop;
+    newsUnsub(); newsUnsub = noop;
   }
 
   function cleanupMarketSubs() {
@@ -191,13 +193,32 @@
         game_state = game?.status || "nothing";
         gameType = game?.type || null;
 
-        // If you want events as "news", add another listener to games/{gameId}/events.
-        news = [];
-
         // Markets list
         const mt = inferMarketTypes(gameType);
         market_types = mt;
         if (!current_market && mt.length) current_market = mt[0];
+      });
+    }
+
+    // news/events doc
+    if (newsUnsub === noop) {
+      const newsCol = collection(db, `games/${gameId}/events`);
+      const newsQ = query(
+        newsCol,
+        orderBy("createdAt", "desc"),
+        limit(50)
+      );
+
+      newsUnsub = onSnapshot(newsQ, (snap) => {
+        news = snap.docs.map((d) => {
+          const n = d.data() || {};
+          return {
+            id: d.id,
+            ...n,
+            // optional: normalize Firestore Timestamp -> ms for UI if needed
+            createdAtMs: n.createdAt?.toMillis ? n.createdAt.toMillis() : n.createdAt
+          };
+        });
       });
     }
 

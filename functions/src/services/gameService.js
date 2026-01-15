@@ -108,7 +108,7 @@ async function joinGame({ uid, gameId, teamName, userEmail }) {
     tx.create(gameRef.collection("events").doc(), {
       type: "PLAYER_JOINED",
       createdAt: Timestamp.now(),
-      payload: { uid, teamName },
+      payload: { uid, teamName, userEmail },
     });
   });
 
