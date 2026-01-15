@@ -2,8 +2,8 @@
     import { createEventDispatcher } from "svelte";
 
     export let market_data = {buyOrders: [], sellOrders: [], meanPrice: [], filledOrders: []};
-    export let team_name
     export let user_id
+    export let team_id
 
     let isExpanded = true
 
@@ -22,9 +22,9 @@
 
         //apply filter
         if (orderFilter === "team") {
-            orders = orders.filter(order => order.teamName === team_name);
+            orders = orders.filter(order => order.teamName === team_id);
         } else if (orderFilter === "your") {
-            orders = orders.filter(order => order.user === user_id);
+            orders = orders.filter(order => order.userId === user_id);
         }
 
         orders.sort((a, b) => a.timestamp - b.timestamp);
@@ -34,6 +34,8 @@
     function cancelOrder(order) {
         dispatch('cancelOrder', order)
     }
+
+    console.log(orders)
 </script>
 
 <div class="border-white border rounded-md mt-2">
@@ -72,22 +74,20 @@
         <div class="min-h-32">
             <div class="border-dashed border-b">
                 <div class="flex bg-slate-600">
-                    <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">Market</h1>
-                    <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">Direction</h1>
-                    <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">Price</h1>
-                    <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">Shares</h1>
-                    <h1 class="basis-1/5 text-md font-semibold text-white text-center py-1">Cancel</h1>
+                    <h1 class="basis-1/4 text-md font-semibold text-white text-center border-r py-1 border-dashed">Direction</h1>
+                    <h1 class="basis-1/4 text-md font-semibold text-white text-center border-r py-1 border-dashed">Price</h1>
+                    <h1 class="basis-1/4 text-md font-semibold text-white text-center border-r py-1 border-dashed">Shares</h1>
+                    <h1 class="basis-1/4 text-md font-semibold text-white text-center py-1">Cancel</h1>
                 </div>
             </div>
             {#if market_data.buyOrders.length > 0 || market_data.sellOrders.length > 0}
                 {#each orders as o}
                     <div class="flex border-y border-dashed hover:scale-105 hover:shadow-lg transform transition-transform duration-150 bg-slate-500">
-                        <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.market}</h1>
-                        <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.direction}</h1>
-                        <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.price}</h1>
-                        <h1 class="basis-1/5 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.shares}</h1>
-                        {#if openOrders && o.teamName === team_name && team_name !== null}
-                            <button on:click={() => cancelOrder(o)} class="text-md font-semibold bg-orange-500 p-4  text-center py-1 w-1/5 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
+                        <h1 class="basis-1/4 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.side}</h1>
+                        <h1 class="basis-1/4 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.price}</h1>
+                        <h1 class="basis-1/4 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.sharesRemaining}</h1>
+                        {#if openOrders && o.teamName === team_id && team_id !== null}
+                            <button on:click={() => cancelOrder(o)} class="text-md font-semibold bg-orange-500 p-4  text-center py-1 w-1/4 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
                                 🗑️
                             </button>
                         {/if}

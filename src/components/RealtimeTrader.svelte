@@ -403,8 +403,11 @@
                    on:placeOrder={_placeOrder}
                    bind:awaiting_update={awaiting_update} />
 
-      <!-- NOTE: OpenOrders.svelte should accept `openOrders` now -->
-      <OpenOrders {openOrders} on:cancelOrder={_cancelOrder} />
+      <OpenOrders 
+                  team_id={teamId} 
+                  user_id={uid} 
+                  market_data={market_data}
+                  on:cancelOrder={_cancelOrder} />
     </div>
   {/if}
 
