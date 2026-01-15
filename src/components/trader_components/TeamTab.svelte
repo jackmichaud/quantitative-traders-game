@@ -52,5 +52,5 @@
     <div class="justify-center items-center flex">
         <MarketSelector bind:markets={markets} bind:selected_market={selected_market} on:marketChange={manage_market_change}/>
     </div>
-    <h1 class="text-white font-semibold py-2 text-sm ml-2">P&L Approx: ${profit_loss}</h1>
+    <!-- <h1 class="text-white font-semibold py-2 text-sm ml-2">P&L Approx: ${profit_loss}</h1> -->
 </div>

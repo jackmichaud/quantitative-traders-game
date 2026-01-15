@@ -381,8 +381,9 @@
   async function _cancelOrder(event) {
     try {
       const order = event.detail; // expect {id, marketId, ...}
-      if (!order?.id || !order?.marketId) throw new Error("Invalid order.");
-      await cancelOrder({ marketId: order.marketId, orderId: order.id });
+      console.log("Cancelling order:", order.id);
+      if (!order?.id) throw new Error("Invalid order.");
+      await cancelOrder({ marketId: current_market, orderId: order.id });
     } catch (e) {
       alert(e?.message || String(e));
     }
