@@ -25,7 +25,7 @@
             loading = true; // Start loading
             console.log("Joining game: " + game_id);
 
-            await joinGame({ game_id, team_name });
+            await joinGame({ gameId: game_id, teamName: team_name });
 
             console.log("Joined game: " + game_id);
             dispatch('joinGame', { game_id, team_name });

@@ -1,6 +1,5 @@
 <script>
     import { createGame } from "../lib/cloud_functions";
-    import { functions } from "../lib/firebase/firebase.client"; // ✅ add this
 
     let isOfficial = false;
     let visibility = "unofficial";
@@ -16,7 +15,6 @@
     
     async function create() {
         try {
-            console.log("About to call createGame. Region:", functions.region);
             const res = await createGame({ type: gameType, visibility, season });
             alert("Game ID: " + res.data?.gameId);
         } catch (e) {
