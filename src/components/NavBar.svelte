@@ -5,7 +5,7 @@
     import { dbHandler } from "../stores/dataStore";
     import NewGame from "./NewGame.svelte";
     import JoinGame from "./JoinGame.svelte";
-    import { startGame, updateMarket, endGame, createGame, closeGame, joinGame } from "../lib/cloud_functions";
+    import { startGame, tickGame, closeGame, createGame, joinGame } from "../lib/cloud_functions";
     import LeaveGame from "./LeaveGame.svelte";
 
     let showModal = "closed";
@@ -32,7 +32,7 @@
         for(let i = 0; i < numIterations; i++) {  
             await new Promise(resolve => setTimeout(resolve, 60000));
 
-            await updateMarket().catch((error) => alert(error.message))
+            await tickGame().catch((error) => alert(error.message))
             
         }
 
@@ -40,7 +40,7 @@
 
         await new Promise(resolve => setTimeout(resolve, 60000));
 
-        await endGame().catch((error) => alert(error.message))
+        await closeGame().catch((error) => alert(error.message))
     }
 
     async function recalculate() {

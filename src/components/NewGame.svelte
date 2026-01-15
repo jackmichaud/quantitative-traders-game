@@ -1,17 +1,28 @@
 <script>
     import { createGame } from "../lib/cloud_functions";
+    import { functions } from "../lib/firebase/firebase.client"; // ✅ add this
 
-    let official = false 
+    let isOfficial = false;
+    let visibility = "unofficial";
+    $: visibility = isOfficial ? "official" : "unofficial";
+
     let gameType;
 
+    // TODO: Change this
     let season = "Fall2025"
 
     let submitted = false
 
+    
     async function create() {
-        createGame({"type": gameType, "official": official, "season": season})
-            .then((response) => alert(response.data))
-            .catch((error) => alert(error.message))
+        try {
+            console.log("About to call createGame. Region:", functions.region);
+            const res = await createGame({ type: gameType, visibility, season });
+            alert("Game ID: " + res.data?.gameId);
+        } catch (e) {
+            console.error("Callable error:", e);
+            alert(e?.message || String(e));
+        }
     }
 </script>
 
@@ -26,7 +37,7 @@
 
     <label class="text-xl mt-4">
         Official Game? 
-        <input bind:value|preventDefault={official} type="checkbox"/>
+        <input bind:checked|preventDefault={isOfficial} type="checkbox"/>
     </label>
 
     <label class="text-xl mt-4">

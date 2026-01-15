@@ -12,15 +12,16 @@ export const cancelOrder = httpsCallable(functions, 'cancelOrder');
 
 // Admin functions
 
-export const startGame = httpsCallable(functions, 'startGameManual');
+export const createGame = httpsCallable(functions, 'createGame');
 
-export const endGame = httpsCallable(functions, 'endGameManual');
+export const startGame = httpsCallable(functions, 'startGame');
 
-export const rollDice = httpsCallable(functions, 'rollDiceManual');
-
-export const createGame = httpsCallable(functions, 'createGameManual');
+export const tickGame = httpsCallable(functions, 'tickGame');
 
 export const closeGame = httpsCallable(functions, 'closeGame');
 
-export const updateMarket = httpsCallable(functions, 'updateMarket');
+
+
+// export const updateMarket = httpsCallable(functions, 'updateMarket');
+// export const endGame = httpsCallable(functions, 'closeGame');
 

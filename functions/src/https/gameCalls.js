@@ -4,10 +4,15 @@ const { toHttpsError } = require("../utils/errors");
 const { requireString } = require("../utils/validate");
 const { db } = require("../admin");
 
+const { log } = require("firebase-functions/logger");
+
 const gameService = require("../services/gameService");
 const settlementService = require("../services/settlementService");
 
 exports.createGame = onCall(async (req) => {
+
+  log("Creating game with data:", req.data);
+  
   try {
     const uid = requireAuth(req);
     const type = requireString(req.data.type, "type");
