@@ -4,8 +4,6 @@
     export let teamId
 
     let isExpanded = true
-
-    console.log(teamId)
 </script>
 
 <div class="border-white border rounded-md shadow-black shadow-md">

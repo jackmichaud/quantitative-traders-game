@@ -34,8 +34,6 @@
     function cancelOrder(order) {
         dispatch('cancelOrder', order)
     }
-
-    console.log(orders)
 </script>
 
 <div class="border-white border rounded-md mt-2 shadow-black shadow-md">

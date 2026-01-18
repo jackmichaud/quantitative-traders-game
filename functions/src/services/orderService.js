@@ -155,11 +155,11 @@ async function placeOrder({ uid, marketId, side, price, shares }) {
       });
 
       // Optional: game-level event
-      tx.create(gameRef.collection("events").doc(), {
-        type: "TRADE",
-        createdAt: now,
-        payload: { marketId, price: tradePrice, qty: fillQty },
-      });
+      // tx.create(gameRef.collection("events").doc(), {
+      //   type: "TRADE",
+      //   createdAt: now,
+      //   payload: { marketId, price: tradePrice, qty: fillQty },
+      // });
     }
 
     // Finalize placed order

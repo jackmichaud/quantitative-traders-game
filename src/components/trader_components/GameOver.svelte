@@ -2,8 +2,8 @@
     export let leaderboard = []
 </script>
 
-<div class="border-white border rounded-md bg-slate-700 w-full my-2">
-    <h1 class="text-center text-white font-semibold py-2 text-xl border-white border-b">Game Over! Closing Game in 1 minute! </h1>
+<div class="border-white border rounded-md bg-slate-700 w-full my-2 shadow-md shadow-black">
+    <h1 class="text-center text-white font-semibold py-2 text-xl border-white border-b">Game Over! Click "Leave Game" to return to the lobby. </h1>
     {#each leaderboard.sort((a, b) => b.balance - a.balance) as team}
         <div class="text-center text-white font-semibold text-sm border-white border">
             <h1 class="text-center text-white font-semibold text-sm my-2">{team.name}: {#if team.balance >= 0} ${team.balance} {:else} (${team.balance * -1}) {/if}</h1>

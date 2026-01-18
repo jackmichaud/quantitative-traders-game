@@ -2,6 +2,9 @@ const { db, Timestamp } = require("../admin");
 const { HttpsError } = require("firebase-functions/v2/https");
 const { getGameImpl } = require("../games/registry");
 const { newId } = require("../utils/ids");
+const admin = require("firebase-admin");
+
+const logger = require("firebase-functions/logger");
 
 async function createGame({ uid, type, season, visibility }) {
   const impl = getGameImpl(type);
@@ -189,47 +192,50 @@ async function startGame({ uid }) {
   return { ok: true };
 }
 
-async function tickGame(gameId) {
+async function tickGame(arg) {
+  // support tickGame("id") and tickGame({ gameId: "id" })
+  const gameId = typeof arg === "string" ? arg : arg?.gameId;
+
+  if (typeof gameId !== "string" || gameId.trim() === "") {
+    throw new Error(`tickGame: invalid gameId: ${JSON.stringify(gameId)}`);
+  }
+
+  logger.log("Ticking game", gameId);
+
   const gameRef = db.collection("games").doc(gameId);
 
   return db.runTransaction(async (tx) => {
-    // ✅ READS FIRST
+    // READS
     const gameSnap = await tx.get(gameRef);
     if (!gameSnap.exists) throw new Error("Game not found");
 
     const game = { id: gameSnap.id, ...gameSnap.data() };
+    if (!game.type) throw new Error(`Game ${gameId} missing "type"`);
 
-    const typeModule = getTypeModule(game.type);
+    const impl = getGameImpl(game.type);
 
-    // call your type tick
-    const { event, ...patch } = typeModule.tick({ game });
+    // game-specific tick
+    const { event, ...patch } = impl.tick({ game });
 
-    // build updates
-    const updates = { ...patch };
+    // WRITES
+    const updates = {
+      ...patch,
+      updatedAt: Timestamp.now(),
+    };
 
-    // if you store events on the game doc:
+    tx.update(gameRef, updates);
+
+    // write event as a new doc in games/{gameId}/events/{new uid}
     if (event) {
-      updates.events = admin.firestore.FieldValue.arrayUnion({
-        ...event,
-        ts: admin.firestore.FieldValue.serverTimestamp(),
+      tx.create(gameRef.collection("events").doc(), {
+        type: event.type,
+        createdAt: Timestamp.now(),
+        payload: event.payload ?? {},
       });
     }
 
-    // ✅ WRITES AFTER
-    tx.update(gameRef, updates);
-
-    // return something useful to caller
     return { gameId, updates, event };
   });
 }
 
 module.exports = { createGame, joinGame, leaveGame, startGame, tickGame };
-
-// Helpers
-
-function getTypeModule(type) {
-  const mod = typeModules[type];
-  if (!mod) throw new Error(`Unknown game type: ${type}`);
-  if (typeof mod.tick !== "function") throw new Error(`Game type "${type}" does not implement tick()`);
-  return mod;
-}

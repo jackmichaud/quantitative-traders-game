@@ -30,7 +30,7 @@
       case "PLAYER_JOINED":
         return {
           title: "Player joined",
-          content: `${p.teamName ?? "A team"}: ${p.userEmail ?? p.uid ?? "unknown"} joined.`
+          content: `${p.teamName ?? "A team"}: ${JSON.stringify(p)} joined.`
         };
 
       case "PLAYER_LEFT":
@@ -44,6 +44,9 @@
 
       case "GAME_ENDED":
         return { title: "Game ended", content: "Trading has closed." };
+
+      case "DICE_ROLL":
+        return { title: "Dice roll", content: "A dice was rolled: [" + p.roll + "]" };
 
       default:
         // fallback: show raw-ish info without crashing
@@ -80,13 +83,13 @@
     </button>
   </div>
 
-  <div>
+  <div class="h-full overflow-y-auto overflow-x-hidden max-h-[80vh]">
     {#if news && isExpanded}
       {#if news.length === 0}
         <h1 class="text-md font-semibold text-white text-center p-4 italic">No news yet...</h1>
       {/if}
 
-      {#each news.toReversed() as n (n.id)}
+      {#each news as n (n.id)}
         {@const display = formatItem(n)}
         {@const recent = isRecent(n)}
         <div class="{recent ? 'bg-orange-500' : 'bg-slate-600'} my-2 border-y hover:scale-105 hover:shadow-lg transform transition-transform duration-150">

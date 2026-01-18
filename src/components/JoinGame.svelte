@@ -38,7 +38,7 @@
 
 </script>
 
-<div class="basis-1/4 border-white rounded-md text-sm m-2">
+<div class="basis-1/4 border-white rounded-md text-sm m-2 shadow-md shadow-black">
     <div class="bg-slate-700 p-2 rounded-md border flex justify-center items-center text-sm text-black font-semibold ">
         <form class="text-sm text-white flex">
             <select bind:value={team_name} on:change|preventDefault={()=>{}} name="teams" id="teams" class="bg-slate-700 border rounded-md p-2 text-white text-md  hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">

@@ -6,6 +6,7 @@
     export let markets = []
     export let selected_market
     export let start_time = null
+    export let game_id = ""
     
     let clock = ""
     let displayClock = true;
@@ -52,5 +53,8 @@
     <div class="justify-center items-center flex">
         <MarketSelector bind:markets={markets} bind:selected_market={selected_market} on:marketChange={manage_market_change}/>
     </div>
+    {#if game_id}
+        <h1 class="text-white font-semibold py-2 text-sm ml-2">Game ID: {game_id}</h1>
+    {/if}
     <!-- <h1 class="text-white font-semibold py-2 text-sm ml-2">P&L Approx: ${profit_loss}</h1> -->
 </div>

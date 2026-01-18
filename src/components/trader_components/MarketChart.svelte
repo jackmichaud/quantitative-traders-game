@@ -9,7 +9,7 @@
 
     $: if(chartData === undefined || chartData.length === 0 || chartData === null) {data = []; chartData=[]} else {
       // chartData is the data with timestamps converted to seconds
-      data = chartData.map(d => ({...d, timestamp: d.timestamp.seconds - start_time.seconds}));
+      data = chartData.map(d => ({...d, timestamp: d.timestamp.seconds - start_time?.seconds}));
     }
 </script>
 

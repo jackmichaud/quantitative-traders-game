@@ -395,7 +395,7 @@
   });
 </script>
 
-<main class="flex flex-row flex-grow">
+<main class="flex flex-row flex-grow h-full items-stretch">
   <div class="basis-1/4 m-2">
     {#if inGame && teamData}
       <TeamDisplay bind:teamData={teamData} />
@@ -417,6 +417,7 @@
       <TeamTab on:marketChange={updateMarket}
                bind:markets={market_types}
                bind:selected_market={current_market}
+               game_id={gameId}
                start_time={game?.startAt} />
 
       <OrderPlacer bind:pendingOrder={pending_order}
@@ -433,7 +434,7 @@
     </div>
   {/if}
 
-  <div class="basis-1/4 m-2">
+  <div class="basis-1/4 m-2 flex flex-col">
     <NewsDisplay bind:news={news} />
   </div>
 </main>

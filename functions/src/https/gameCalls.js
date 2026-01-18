@@ -60,7 +60,8 @@ exports.startGame = onCall(async (req) => {
 exports.tickGame = onCall(async (req) => {
   try {
     const uid = requireAuth(req);
-    return await gameService.tickGame({ uid });
+    const gameId = requireString(req.data.gameId, "gameId");
+    return await gameService.tickGame({ gameId });
   } catch (e) {
     throw toHttpsError(e);
   }
