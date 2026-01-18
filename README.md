@@ -39,8 +39,8 @@ A real-time, team-based trading simulation platform that combines elements of pr
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/qtav.git
-   cd qtav
+   git clone https://github.com/jackmichaud/quantitative-traders-game.git                    
+   cd quantitative-traders-game
    ```
 
 2. Install dependencies:
