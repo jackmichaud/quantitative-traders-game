@@ -8,7 +8,7 @@
     let gameType;
 
     // TODO: Change this
-    let season = "Fall2025"
+    let season = "Spring2026"
 
     let submitted = false
 
@@ -41,6 +41,7 @@
     <label class="text-xl mt-4">
         Leaderboard Season:
         <select bind:value|preventDefault={season} name="Game Type" class="text-xl rounded-md text-black">
+            <option value="Spring2026">Spring 2026</option>
             <option value="Fall2025">Fall 2025</option>
         </select>
     </label>

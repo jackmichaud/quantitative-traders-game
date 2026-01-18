@@ -82,14 +82,6 @@ qtav/
 
 For any questions or feedback, please open an issue or contact the maintainers.
 
-## 🎯 Future Improvements
-
-- [ ] Expand educational content with interactive tutorials
-- [ ] Add more market scenarios and trading instruments
-- [ ] Implement advanced analytics and performance metrics
-- [ ] Enhance multiplayer features and competitions
-- [ ] Add mobile responsiveness for on-the-go learning
-
 ---
 
 Built with ❤️ by QTV Team

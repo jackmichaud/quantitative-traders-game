@@ -5,7 +5,7 @@
 
     let selected_leaderboard = ""
 
-    let leaderboards = ["Fall2025", "Spring2025", "TournamentSpring2025"]
+    let leaderboards = ["Fall2025", "Spring2025", "TournamentSpring2025", "Spring2026"]
 
     let leaderboardView = "teams"
 

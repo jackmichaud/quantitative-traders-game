@@ -30,7 +30,7 @@
       case "PLAYER_JOINED":
         return {
           title: "Player joined",
-          content: `${p.teamName ?? "A team"}: ${JSON.stringify(p)} joined.`
+          content: `${p.teamName ?? "A team"}: ${p.userEmail ?? p.uid ?? "unknown"} joined.`
         };
 
       case "PLAYER_LEFT":
