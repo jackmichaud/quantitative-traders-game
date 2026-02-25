@@ -1,4 +1,6 @@
 <script>
+    import InfoButton from '../ui/InfoButton.svelte'
+
     export let bids = []
     export let asks = []
     export let teamId
@@ -10,11 +12,14 @@
     <div class="bg-slate-700 rounded-t-md {isExpanded ? 'rounded-b-none border-b ' : 'rounded-b-md'} flex justify-between items-center px-4">
         <h1 class="text-center text-white font-semibold py-2 text-md">Order Book</h1>
 
-        <button 
-            on:click={() => { isExpanded = !isExpanded }} 
-            class="text-white text-lg hover:scale-105 hover:shadow-lg transition-transform duration-150">
-            {isExpanded ? '↑' : '↓'}
-        </button>
+        <div class="flex items-center gap-2">
+            <InfoButton text="Live bids and asks for the selected market, best-to-worst. Your team's orders are highlighted." />
+            <button
+                on:click={() => { isExpanded = !isExpanded }}
+                class="text-white text-lg hover:scale-105 hover:shadow-lg transition-transform duration-150">
+                {isExpanded ? '↑' : '↓'}
+            </button>
+        </div>
     </div>
     {#if isExpanded}
         <div class="flex">

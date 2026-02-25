@@ -1,5 +1,6 @@
 <script>
     import { createEventDispatcher } from "svelte";
+    import InfoButton from '../ui/InfoButton.svelte';
 
     export let market_data = {buyOrders: [], sellOrders: [], meanPrice: [], filledOrders: []};
     export let user_id
@@ -40,11 +41,14 @@
     <div class="bg-slate-700 content-evenly text-center items-center rounded-t-md border-b p-2 {isExpanded ? 'rounded-b-none border-b' : 'rounded-b-md border-none'} flex justify-between">
         <h1 class="text-white text-center font-semibold text-md">Orders</h1>
 
-        <button 
-            on:click={() => { isExpanded = !isExpanded }} 
-            class="text-white text-lg hover:scale-105 hover:shadow-lg transition-transform duration-150">
-            {isExpanded ? '↑' : '↓'}
-        </button>
+        <div class="flex items-center gap-2">
+            <InfoButton text="Your open orders in the current market. Filter by team or yours, and cancel open orders." />
+            <button
+                on:click={() => { isExpanded = !isExpanded }}
+                class="text-white text-lg hover:scale-105 hover:shadow-lg transition-transform duration-150">
+                {isExpanded ? '↑' : '↓'}
+            </button>
+        </div>
     </div>
     {#if isExpanded}
         <div class="bg-slate-700 content-evenly text-center items-center rounded-t-md border-b p-2 flex justify-between">

@@ -1,5 +1,6 @@
 <script>
     import { createEventDispatcher } from "svelte";
+    import InfoButton from '../ui/InfoButton.svelte';
 
     export let pendingOrder = {
         direction: 'sell',
@@ -64,8 +65,9 @@
                 </div>
             </div>
         </div>
-        <div class="flex align-middle">
-            <h1 class="ml-4 text-white font-semibold py-2 text-sm">Shares:</h1>
+        <div class="flex align-middle items-center gap-2">
+            <InfoButton text="Place a buy or sell order. Limit sets your price; market matches the best available price." />
+            <h1 class="ml-2 text-white font-semibold py-2 text-sm">Shares:</h1>
             <input bind:value={pendingOrder.shares} type=number min="0.00" step="1" maxlength="8" class="bg-slate-700 pl-2 ml-2 py-2 rounded-md border font-semibold border-white text-white outline-orange-500 text-sm hover:bg-white hover:shadow-lg hover:scale-105 transition-transform duration-150 hover:text-slate-700" placeholder="Shares"/>
         </div>
     </div>

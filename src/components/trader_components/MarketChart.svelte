@@ -1,5 +1,6 @@
 <script>
     import LineChart from '../LineChart.svelte'
+    import InfoButton from '../ui/InfoButton.svelte'
 
     export let chartData = []
     export let title = ""
@@ -19,12 +20,15 @@
         <h1 class="text-center text-white font-semibold text-md">
             Market Chart
         </h1>
-        <!-- Button -->
-        <button 
-            on:click={() => { isExpanded = !isExpanded }} 
-            class="text-white text-lg hover:scale-105 hover:shadow-lg transition-transform duration-150">
-            {isExpanded ? '↑' : '↓'}
-        </button>
+        <!-- Buttons -->
+        <div class="flex items-center gap-2">
+            <InfoButton text="Trade price history for the selected market, plotted from game start." />
+            <button
+                on:click={() => { isExpanded = !isExpanded }}
+                class="text-white text-lg hover:scale-105 hover:shadow-lg transition-transform duration-150">
+                {isExpanded ? '↑' : '↓'}
+            </button>
+        </div>
     </div>
     {#if isExpanded}
         <LineChart bind:data={data} bind:title={title} />

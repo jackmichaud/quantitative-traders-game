@@ -1,6 +1,7 @@
 <script>
     import { createEventDispatcher } from "svelte";
     import MarketSelector from "./MarketSelector.svelte";
+    import InfoButton from '../ui/InfoButton.svelte';
 
     // export let profit_loss = 0
     export let markets = []
@@ -51,10 +52,13 @@
     </div>
     
     <div class="justify-center items-center flex">
+        <div class="flex items-center gap-2 mr-2">
+            {#if game_id}
+                <h1 class="text-white font-semibold py-2 text-sm">Game ID: {game_id}</h1>
+            {/if}
+            <InfoButton text="Select a market to view and trade. Shows remaining game time." />
+        </div>
         <MarketSelector bind:markets={markets} bind:selected_market={selected_market} on:marketChange={manage_market_change}/>
     </div>
-    {#if game_id}
-        <h1 class="text-white font-semibold py-2 text-sm ml-2">Game ID: {game_id}</h1>
-    {/if}
     <!-- <h1 class="text-white font-semibold py-2 text-sm ml-2">P&L Approx: ${profit_loss}</h1> -->
 </div>

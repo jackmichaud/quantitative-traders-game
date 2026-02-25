@@ -24,6 +24,7 @@
   } from "firebase/firestore";
 
   import { placeOrder, cancelOrder } from "../lib/cloud_functions";
+  import RulesDisplay from "./trader_components/RulesDisplay.svelte";
 
   const db = dbHandler.getDB();
 
@@ -435,6 +436,7 @@
   {/if}
 
   <div class="basis-1/4 m-2 flex flex-col">
+    <RulesDisplay gameType={gameType} />
     <NewsDisplay bind:news={news} />
   </div>
 </main>

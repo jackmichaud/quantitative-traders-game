@@ -1,5 +1,6 @@
 <script>
   export let news = [];
+  import InfoButton from '../ui/InfoButton.svelte';
 
   let isExpanded = true;
   let seconds = Math.floor(Date.now() / 1000);
@@ -73,17 +74,20 @@
 
 <div class="basis-1/4 border-white border rounded-md shadow-black shadow-md">
   <div class="bg-slate-700 rounded-t-md {isExpanded ? 'rounded-b-none border-b' : 'rounded-b-md'} flex justify-between items-center px-4">
-    <h1 class="text-center text-white font-semibold py-2 text-md flex-grow">News</h1>
+    <h1 class="text-white font-semibold py-2 text-md">News</h1>
 
-    <button
-      on:click={() => { isExpanded = !isExpanded }}
-      class="text-white text-lg hover:scale-105 hover:shadow-lg transition-transform duration-150"
-    >
-      {isExpanded ? "↑" : "↓"}
-    </button>
+    <div class="flex items-center gap-2">
+      <InfoButton text="Live feed of game events: dice rolls, card draws, and player activity." />
+      <button
+        on:click={() => { isExpanded = !isExpanded }}
+        class="text-white text-lg hover:scale-105 hover:shadow-lg transition-transform duration-150"
+      >
+        {isExpanded ? "↑" : "↓"}
+      </button>
+    </div>
   </div>
 
-  <div class="h-full overflow-y-auto overflow-x-hidden max-h-[80vh]">
+  <div class="overflow-y-auto overflow-x-hidden max-h-[80vh]">
     {#if news && isExpanded}
       {#if news.length === 0}
         <h1 class="text-md font-semibold text-white text-center p-4 italic">No news yet...</h1>
