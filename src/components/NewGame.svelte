@@ -30,6 +30,7 @@
         <select bind:value|preventDefault={gameType} name="Game Type" class="text-xl rounded-md text-black">
             <option value="dice">Dice Game</option>
             <option value="cards">Card Game</option>
+            <option value="golf">Golf Game</option>
         </select>
     </label>
 

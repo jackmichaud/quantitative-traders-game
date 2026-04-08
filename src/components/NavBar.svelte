@@ -25,13 +25,17 @@
 
         // TODO: get numIterations from game config
         let numIterations = 0;
+        let tickInterval = 60000;
         if(currentGame.gameId.startsWith("dice")) {
             numIterations = 5;
         } else if (currentGame.gameId.startsWith("cards")) {
             numIterations = 6;
+        } else if (currentGame.gameId.startsWith("golf")) {
+            numIterations = 9;
+            tickInterval = 30000;
         }
 
-        await hostGame(currentGame.gameId, numIterations);
+        await hostGame(currentGame.gameId, numIterations, tickInterval);
 
         // await closeGame().catch((error) => alert(error.message))
 

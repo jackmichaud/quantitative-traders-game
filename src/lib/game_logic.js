@@ -2,10 +2,10 @@
 
 import { tickGame, closeGame } from "./cloud_functions";
 
-export async function hostGame(gameId, numIterations) {
+export async function hostGame(gameId, numIterations, tickInterval = 60000) {
 
-    for(let i = 0; i < numIterations; i++) {  
-      await new Promise(resolve => setTimeout(resolve, 60000));
+    for(let i = 0; i < numIterations; i++) {
+      await new Promise(resolve => setTimeout(resolve, tickInterval));
 
       console.log("Ticking game", gameId);
 

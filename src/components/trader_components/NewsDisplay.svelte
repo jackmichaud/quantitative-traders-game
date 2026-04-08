@@ -49,6 +49,12 @@
       case "DICE_ROLL":
         return { title: "Dice roll", content: "A dice was rolled: [" + p.roll + "]" };
 
+      case "HOLE_PLAYED":
+        return {
+          title: `Hole ${p.holeNumber}`,
+          content: `${p.scoreName.replace("_", " ")} (${p.score > 0 ? "+" : ""}${p.score})`
+        };
+
       default:
         // fallback: show raw-ish info without crashing
         return {

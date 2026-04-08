@@ -8,6 +8,7 @@
     export let selected_market
     export let start_time = null
     export let game_id = ""
+    export let gameType = null
     
     let clock = ""
     let displayClock = true;
@@ -23,7 +24,8 @@
     function tickTime() {
         const interval = setInterval(() => {
             if(start_time !== null && start_time !== undefined && start_time.seconds) {
-                let seconds_left = 360 - (Math.floor(Date.now() / 1000) - start_time.seconds)   //TODO: Update clock depending on length of the game
+                const totalSeconds = { dice: 300, cards: 360, golf: 270 }[gameType] ?? 360;
+                let seconds_left = totalSeconds - (Math.floor(Date.now() / 1000) - start_time.seconds)
                 let minutes = Math.floor(seconds_left / 60)
                 let seconds = seconds_left % 60
                 if(seconds_left <= 0) {

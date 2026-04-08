@@ -1,9 +1,11 @@
 const dice = require("./types/dice");
 const cards = require("./types/cards");
+const golf = require("./types/golf");
 
 const registry = {
   dice,
   cards,
+  golf,
 };
 
 function getGameImpl(type) {

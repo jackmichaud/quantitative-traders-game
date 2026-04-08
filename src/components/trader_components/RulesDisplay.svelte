@@ -25,6 +25,15 @@
         { id: "5s", rule: "(Min remaining card ≤ 5)⁵" },
         { id: "6s", rule: "(Sum of remaining cards ≥ 6) × 6" },
       ]
+    },
+    golf: {
+      description: "Each tick, a hole is played. Eagle (−2, 5%), Birdie (−1, 25%), Par (0, 45%), Bogey (+1, 15%), Double Bogey (+2, 10%). Par = 4 per hole, 9 holes total.",
+      markets: [
+        { id: "SCORE",   rule: "Total strokes (par is 36)" },
+        { id: "BIRDIES", rule: "Number of birdies × 10" },
+        { id: "BOGEYS",  rule: "Number of bogeys × 20" },
+        { id: "EAGLES",  rule: "Number of eagles × 50" },
+      ]
     }
   };
 

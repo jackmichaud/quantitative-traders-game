@@ -97,6 +97,7 @@
   function inferMarketTypes(type) {
     if (type === "dice") return ["SUM", "PRODUCT", "RANGE", "EVENS", "ODDS"];
     if (type === "cards") return ["2s", "3s", "4s", "5s", "6s"];
+    if (type === "golf") return ["SCORE", "BIRDIES", "BOGEYS", "EAGLES"];
     return [];
   }
 
@@ -419,7 +420,8 @@
                bind:markets={market_types}
                bind:selected_market={current_market}
                game_id={gameId}
-               start_time={game?.startAt} />
+               start_time={game?.startAt}
+               gameType={gameType} />
 
       <OrderPlacer bind:pendingOrder={pending_order}
                    highest_bid={market_data.buyOrders[0]?.price || 0}
