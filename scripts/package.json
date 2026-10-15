@@ -1,0 +1,9 @@
+{
+  "name": "qtg-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Admin scripts for quantitative-traders-game",
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}

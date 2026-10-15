@@ -41,7 +41,7 @@
   let marketUnsub = noop;
   let bidsUnsub = noop;
   let asksUnsub = noop;
-  let openOrdersUnsub = noop;
+  let ordersUnsub = noop;
   let tradesUnsub = noop;
   let newsUnsub = noop;
 
@@ -75,8 +75,8 @@
   let bids = [];
   let asks = [];
 
-  // open orders for this user in current market
-  let openOrders = [];
+  // orders in the current market, including filled and cancelled orders
+  let marketOrders = [];
 
   // chart derived from trades (last N trades)
   let chartData = [];
@@ -90,7 +90,8 @@
     buyOrders: bids.map((o) => ({ ...o, teamName: o.teamId })), // teamName field kept for UI
     sellOrders: asks.map((o) => ({ ...o, teamName: o.teamId })),
     meanPrice: chartData,
-    filledOrders: []
+    openOrders: marketOrders.filter((o) => o.status === "open"),
+    closedOrders: marketOrders.filter((o) => ["filled", "cancelled"].includes(o.status))
   };
 
   // ---------- Helpers ----------
@@ -112,7 +113,7 @@
     marketUnsub(); marketUnsub = noop;
     bidsUnsub(); bidsUnsub = noop;
     asksUnsub(); asksUnsub = noop;
-    openOrdersUnsub(); openOrdersUnsub = noop;
+    ordersUnsub(); ordersUnsub = noop;
     tradesUnsub(); tradesUnsub = noop;
   }
 
@@ -138,7 +139,7 @@
     marketDoc = null;
     bids = [];
     asks = [];
-    openOrders = [];
+    marketOrders = [];
     chartData = [];
   }
 
@@ -312,16 +313,14 @@
       asks = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     });
 
-    // my open orders in this market
-    const myOrdersQ = query(
+    // Market orders power both the Open and Closed tabs. Filtering by status is
+    // done client-side so this query does not require another composite index.
+    const ordersQ = query(
       ordersCol,
-      where("userId", "==", uid),
-      where("status", "==", "open"),
-      orderBy("createdAt", "desc"),
-      limit(100)
+      orderBy("createdAt", "desc")
     );
-    openOrdersUnsub = onSnapshot(myOrdersQ, (snap) => {
-      openOrders = snap.docs.map((d) => ({ id: d.id, marketId: current_market, ...d.data() }));
+    ordersUnsub = onSnapshot(ordersQ, (snap) => {
+      marketOrders = snap.docs.map((d) => ({ id: d.id, marketId: current_market, ...d.data() }));
     });
 
     // trades -> chart data
@@ -385,7 +384,7 @@
       const order = event.detail; // expect {id, marketId, ...}
       console.log("Cancelling order:", order.id);
       if (!order?.id) throw new Error("Invalid order.");
-      await cancelOrder({ marketId: current_market, orderId: order.id });
+      await cancelOrder({ marketId: order.marketId || current_market, orderId: order.id });
     } catch (e) {
       alert(e?.message || String(e));
     }
@@ -412,30 +411,30 @@
                bind:teamId={teamId} />
   </div>
 
-  {#if game_state === "closed"}
-    <GameOver leaderboard={game?.leaderboard} />
-  {:else}
-    <div class="basis-2/4 my-2">
-      <TeamTab on:marketChange={updateMarket}
-               bind:markets={market_types}
-               bind:selected_market={current_market}
-               game_id={gameId}
-               start_time={game?.startAt}
-               gameType={gameType} />
+  <div class="basis-2/4 my-2">
+    <TeamTab on:marketChange={updateMarket}
+             bind:markets={market_types}
+             bind:selected_market={current_market}
+             game_id={gameId}
+             start_time={game?.startAt}
+             gameType={gameType} />
 
+    {#if game_state === "closed"}
+      <GameOver leaderboard={game?.leaderboard} />
+    {:else}
       <OrderPlacer bind:pendingOrder={pending_order}
                    highest_bid={market_data.buyOrders[0]?.price || 0}
                    lowest_ask={market_data.sellOrders[0]?.price || 0}
                    on:placeOrder={_placeOrder}
                    bind:awaiting_update={awaiting_update} />
+    {/if}
 
-      <OpenOrders 
-                  team_id={teamId} 
-                  user_id={uid} 
-                  market_data={market_data}
-                  on:cancelOrder={_cancelOrder} />
-    </div>
-  {/if}
+    <OpenOrders
+                team_id={teamId}
+                user_id={uid}
+                market_data={market_data}
+                on:cancelOrder={_cancelOrder} />
+  </div>
 
   <div class="basis-1/4 m-2 flex flex-col">
     <RulesDisplay gameType={gameType} />

@@ -2,7 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import InfoButton from '../ui/InfoButton.svelte';
 
-    export let market_data = {buyOrders: [], sellOrders: [], meanPrice: [], filledOrders: []};
+    export let market_data = {openOrders: [], closedOrders: []};
     export let user_id
     export let team_id
 
@@ -13,23 +13,24 @@
 
     const dispatch = createEventDispatcher()
 
+    function createdAtMillis(order) {
+        if (order.createdAt?.toMillis) return order.createdAt.toMillis();
+        if (typeof order.createdAt?.seconds === "number") return order.createdAt.seconds * 1000;
+        return Number(order.createdAt || 0);
+    }
+
     let orders = []
-    $: if(market_data.buyOrders.length > 0 || market_data.sellOrders.length > 0) {
-        if (openOrders) {
-            orders = [...market_data.buyOrders, ...market_data.sellOrders]
-        } else {
-            orders = market_data.filledOrders
-        }
+    $: {
+        orders = openOrders ? [...market_data.openOrders] : [...market_data.closedOrders]
 
         //apply filter
         if (orderFilter === "team") {
-            orders = orders.filter(order => order.teamName === team_id);
+            orders = orders.filter(order => order.teamId === team_id);
         } else if (orderFilter === "your") {
             orders = orders.filter(order => order.userId === user_id);
         }
 
-        orders.sort((a, b) => a.timestamp - b.timestamp);
-        orders = orders
+        orders.sort((a, b) => createdAtMillis(b) - createdAtMillis(a));
     }
 
     function cancelOrder(order) {
@@ -42,7 +43,7 @@
         <h1 class="text-white text-center font-semibold text-md">Orders</h1>
 
         <div class="flex items-center gap-2">
-            <InfoButton text="Your open orders in the current market. Filter by team or yours, and cancel open orders." />
+            <InfoButton text="Open, filled, and cancelled orders in the current market. Filter by team or yours, and cancel your open orders." />
             <button
                 on:click={() => { isExpanded = !isExpanded }}
                 class="text-white text-lg hover:scale-105 hover:shadow-lg transition-transform duration-150">
@@ -79,24 +80,28 @@
                     <h1 class="basis-1/4 text-md font-semibold text-white text-center border-r py-1 border-dashed">Direction</h1>
                     <h1 class="basis-1/4 text-md font-semibold text-white text-center border-r py-1 border-dashed">Price</h1>
                     <h1 class="basis-1/4 text-md font-semibold text-white text-center border-r py-1 border-dashed">Shares</h1>
-                    <h1 class="basis-1/4 text-md font-semibold text-white text-center py-1">Cancel</h1>
+                    <h1 class="basis-1/4 text-md font-semibold text-white text-center py-1">{openOrders ? 'Cancel' : 'Status'}</h1>
                 </div>
             </div>
-            {#if market_data.buyOrders.length > 0 || market_data.sellOrders.length > 0}
+            {#if orders.length > 0}
                 {#each orders as o}
                     <div class="flex border-y border-dashed hover:scale-105 hover:shadow-lg transform transition-transform duration-150 bg-slate-500">
                         <h1 class="basis-1/4 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.side}</h1>
                         <h1 class="basis-1/4 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.price}</h1>
-                        <h1 class="basis-1/4 text-md font-semibold text-white text-center border-r py-1 border-dashed">{o.sharesRemaining}</h1>
-                        {#if openOrders && o.teamName === team_id && team_id !== null}
-                            <button on:click={() => cancelOrder(o)} class="text-md font-semibold bg-orange-500 p-4  text-center py-1 w-1/4 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">
+                        <h1 class="basis-1/4 text-md font-semibold text-white text-center border-r py-1 border-dashed">{openOrders ? o.sharesRemaining : (o.sharesOriginal ?? o.sharesRemaining)}</h1>
+                        {#if openOrders && o.userId === user_id}
+                            <button on:click={() => cancelOrder(o)} class="text-md font-semibold bg-orange-500 p-4 text-center py-1 w-1/4 hover:scale-105 hover:shadow-lg transform transition-transform duration-150" aria-label="Cancel order">
                                 🗑️
                             </button>
+                        {:else if openOrders}
+                            <span class="basis-1/4 text-md font-semibold text-white text-center py-1">—</span>
+                        {:else}
+                            <span class="basis-1/4 text-md font-semibold text-white text-center py-1 capitalize">{o.status}</span>
                         {/if}
                     </div>
                 {/each}
             {:else}
-                <div class="text-md font-semibold text-white text-center p-4 italic">Waiting for orders...</div>
+                <div class="text-md font-semibold text-white text-center p-4 italic">No {openOrders ? 'open' : 'closed'} orders in this market.</div>
             {/if}
         </div>
     {/if}
