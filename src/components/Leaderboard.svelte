@@ -3,9 +3,9 @@
 
     let isExpanded = true
 
-    let selected_leaderboard = ""
+    let selected_leaderboard = "Fall2026"
 
-    let leaderboards = ["Fall2025", "Spring2025", "TournamentSpring2025", "Spring2026"]
+    let leaderboards = ["Fall2026", "Spring2026", "Fall2025", "Spring2025", "TournamentSpring2025"]
 
     let leaderboardView = "teams"
 
