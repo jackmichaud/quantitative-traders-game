@@ -34,6 +34,16 @@
         { id: "BOGEYS",  rule: "Number of bogeys × 20" },
         { id: "EAGLES",  rule: "Number of eagles × 50" },
       ]
+    },
+    fruit: {
+      description: "Eight fruits are drawn without replacement from a known 24-fruit crate: 6 apples, 5 bananas, 4 oranges, 4 grape bunches, 3 pears, and 2 dragon fruits. Value/sweetness scores are Apple 8/6, Banana 6/8, Orange 7/5, Grapes 5/9, Pear 9/7, and Dragon fruit 15/10.",
+      markets: [
+        { id: "VALUE",     rule: "Sum of fruit values" },
+        { id: "SWEETNESS", rule: "Sum of sweetness scores" },
+        { id: "CITRUS",    rule: "Number of oranges × 20" },
+        { id: "VARIETY",   rule: "Unique fruit types² × 4" },
+        { id: "RARE",      rule: "Number of dragon fruits × 50" },
+      ]
     }
   };
 

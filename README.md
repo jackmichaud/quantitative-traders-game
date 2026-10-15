@@ -16,6 +16,7 @@ A real-time, team-based trading simulation platform that combines elements of pr
 
 - **Dice Game**: Make trading decisions based on dice roll outcomes that affect market prices
 - **Card Game**: Strategize using card-based market movements and events
+- **Fruit Basket**: Update conditional probabilities as eight fruits are drawn without replacement from a known crate
 - **Real-Time Updates**: Watch the market react to game events and player actions
 - **Team Collaboration**: Work with your team to make optimal trading decisions
 - **Risk Management**: Learn to manage positions and risk in a dynamic environment

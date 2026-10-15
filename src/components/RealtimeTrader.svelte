@@ -99,6 +99,7 @@
     if (type === "dice") return ["SUM", "PRODUCT", "RANGE", "EVENS", "ODDS"];
     if (type === "cards") return ["2s", "3s", "4s", "5s", "6s"];
     if (type === "golf") return ["SCORE", "BIRDIES", "BOGEYS", "EAGLES"];
+    if (type === "fruit") return ["VALUE", "SWEETNESS", "CITRUS", "VARIETY", "RARE"];
     return [];
   }
 

@@ -24,7 +24,7 @@
     function tickTime() {
         const interval = setInterval(() => {
             if(start_time !== null && start_time !== undefined && start_time.seconds) {
-                const totalSeconds = { dice: 300, cards: 360, golf: 270 }[gameType] ?? 360;
+                const totalSeconds = { dice: 300, cards: 360, golf: 270, fruit: 240 }[gameType] ?? 360;
                 let seconds_left = totalSeconds - (Math.floor(Date.now() / 1000) - start_time.seconds)
                 let minutes = Math.floor(seconds_left / 60)
                 let seconds = seconds_left % 60

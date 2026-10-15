@@ -30,6 +30,7 @@
             <option value="dice">Dice Game</option>
             <option value="cards">Card Game</option>
             <option value="golf">Golf Game</option>
+            <option value="fruit">Fruit Basket</option>
         </select>
     </label>
 

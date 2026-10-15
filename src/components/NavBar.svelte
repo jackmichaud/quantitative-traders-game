@@ -33,6 +33,9 @@
         } else if (currentGame.gameId.startsWith("golf")) {
             numIterations = 9;
             tickInterval = 30000;
+        } else if (currentGame.gameId.startsWith("fruit")) {
+            numIterations = 8;
+            tickInterval = 30000;
         }
 
         await hostGame(currentGame.gameId, numIterations, tickInterval);

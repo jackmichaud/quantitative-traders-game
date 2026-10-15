@@ -55,6 +55,15 @@
           content: `${p.scoreName.replace("_", " ")} (${p.score > 0 ? "+" : ""}${p.score})`
         };
 
+      case "FRUIT_DRAWN":
+        return {
+          title: `Fruit draw ${p.drawNumber}`,
+          content: `${p.fruitName}: value ${p.value}, sweetness ${p.sweetness}. ${p.remainingInCrate} fruits remain in the crate.`
+        };
+
+      case "FRUIT_BASKET_COMPLETE":
+        return { title: "Fruit basket complete", content: "All eight fruits have been drawn." };
+
       default:
         // fallback: show raw-ish info without crashing
         return {
@@ -83,7 +92,7 @@
     <h1 class="text-white font-semibold py-2 text-md">News</h1>
 
     <div class="flex items-center gap-2">
-      <InfoButton text="Live feed of game events: dice rolls, card draws, and player activity." />
+      <InfoButton text="Live feed of game events, market reveals, and player activity." />
       <button
         on:click={() => { isExpanded = !isExpanded }}
         class="text-white text-lg hover:scale-105 hover:shadow-lg transition-transform duration-150"
