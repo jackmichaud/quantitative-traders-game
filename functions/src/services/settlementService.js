@@ -18,6 +18,10 @@ async function closeGame({ uid }) {
     if (!gameSnap.exists) throw new HttpsError("not-found", "Game not found.");
     const game = gameSnap.data();
 
+    if (game.hostUid !== uid) {
+      throw new HttpsError("permission-denied", "Only the host can close the game.");
+    }
+
     if (game.status === "closed" || game.settlement?.state === "finished") return;
 
     if (game.status !== "active" && game.status !== "closing") {

@@ -93,7 +93,7 @@
                 <h1 class="text-4xl text-white w-1/3">Die 1: {die1}</h1>
                 <h1 class="text-4xl text-white w-1/3">Die 2: {die2}</h1>
             </div>
-            <div class="mt-2 bg-[url('images/woodbg.jpg')] rounded-md grid place-content-center">
+            <div class="mt-2 bg-[url('/images/woodbg.jpg')] rounded-md grid place-content-center">
                 <div class="flex justify-center p-32">
                     {#if die1 > 0 && showDice && die2 > 0}
                         <img src="images/dice/die{die1}.png" alt="die1" class="w-1/12 mr-4"

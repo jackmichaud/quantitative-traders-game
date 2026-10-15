@@ -1,5 +1,5 @@
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
-const { requireAuth } = require("../utils/auth");
+const { onCall } = require("firebase-functions/v2/https");
+const { requireAuth, isAdmin } = require("../utils/auth");
 const { toHttpsError } = require("../utils/errors");
 const { requireString } = require("../utils/validate");
 const { db } = require("../admin");
@@ -18,7 +18,13 @@ exports.createGame = onCall(async (req) => {
     const type = requireString(req.data.type, "type");
     const season = req.data.season ?? null;
     const visibility = req.data.visibility ?? "unofficial";
-    return await gameService.createGame({ uid, type, season, visibility });
+    return await gameService.createGame({
+      uid,
+      type,
+      season,
+      visibility,
+      canCreateOfficial: isAdmin(req),
+    });
   } catch (e) {
     throw toHttpsError(e);
   }
@@ -61,7 +67,7 @@ exports.tickGame = onCall(async (req) => {
   try {
     const uid = requireAuth(req);
     const gameId = requireString(req.data.gameId, "gameId");
-    return await gameService.tickGame({ gameId });
+    return await gameService.tickGame({ uid, gameId });
   } catch (e) {
     throw toHttpsError(e);
   }

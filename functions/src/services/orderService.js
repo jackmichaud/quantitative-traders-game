@@ -14,7 +14,9 @@ async function placeOrder({ uid, marketId, side, price, shares }) {
   if (!uid || !marketId) throw new HttpsError("invalid-argument", "Missing uid or marketId.");
   if (side !== "buy" && side !== "sell") throw new HttpsError("invalid-argument", "Invalid side.");
   if (typeof price !== "number" || price <= 0) throw new HttpsError("invalid-argument", "Invalid price.");
-  if (!Number.isInteger(shares) || shares <= 0) throw new HttpsError("invalid-argument", "Invalid shares.");
+  if (!Number.isInteger(shares) || shares <= 0 || shares > 1000) {
+    throw new HttpsError("invalid-argument", "Shares must be an integer between 1 and 1000.");
+  }
 
   const userSnap = await db.collection("users").doc(uid).get();
   const user = userSnap.data();

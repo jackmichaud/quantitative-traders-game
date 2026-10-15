@@ -2,10 +2,9 @@
     import Modal from "./Modal.svelte";
     import Auth from "./Auth.svelte"
     import { authStore, authHandler } from "../stores/authStore";
-    import { dbHandler } from "../stores/dataStore";
     import NewGame from "./NewGame.svelte";
     import JoinGame from "./JoinGame.svelte";
-    import { startGame, tickGame, closeGame } from "../lib/cloud_functions";
+    import { startGame } from "../lib/cloud_functions";
     import LeaveGame from "./LeaveGame.svelte";
     import { hostGame } from "../lib/game_logic"
 

@@ -2,11 +2,9 @@ const { db, Timestamp } = require("../admin");
 const { HttpsError } = require("firebase-functions/v2/https");
 const { getGameImpl } = require("../games/registry");
 const { newId } = require("../utils/ids");
-const admin = require("firebase-admin");
-
 const logger = require("firebase-functions/logger");
 
-async function createGame({ uid, type, season, visibility }) {
+async function createGame({ uid, type, season, visibility, canCreateOfficial = false }) {
   const impl = getGameImpl(type);
 
   const vis = visibility || "unofficial";
@@ -15,6 +13,9 @@ async function createGame({ uid, type, season, visibility }) {
   }
   if (vis === "official" && (!season || typeof season !== "string" || !season.trim())) {
     throw new HttpsError("invalid-argument", "season is required for official games");
+  }
+  if (vis === "official" && !canCreateOfficial) {
+    throw new HttpsError("permission-denied", "Only an administrator can create official games.");
   }
 
   const gameId = `${type}-${newId().slice(0, 8)}`;
@@ -25,7 +26,7 @@ async function createGame({ uid, type, season, visibility }) {
     season: vis === "official" ? season.trim() : (season?.trim() || null),
     visibility: vis,
     status: "waiting",
-    hostUid: uid,                 // optional: only host can start/close later
+    hostUid: uid,                 // only the host can start, advance, and close
     createdAt: Timestamp.now(),
     startAt: null,
     closedAt: null,
@@ -134,12 +135,9 @@ async function leaveGame({ uid }) {
     if (!gameSnap.exists) throw new HttpsError("not-found", "Game not found.");
     const game = gameSnap.data();
 
-    // if (game.status !== "waiting") {
-    //   throw new HttpsError("failed-precondition", "Cannot leave after game starts.");
-    // }
-    // if (game.rosterLocked) {
-    //   throw new HttpsError("failed-precondition", "Roster locked.");
-    // }
+    if (game.status === "active" || game.status === "closing") {
+      throw new HttpsError("failed-precondition", "Players cannot leave while the game is running.");
+    }
 
     const teamRef = gameRef.collection("teams").doc(cg.teamId);
     const playerRef = teamRef.collection("players").doc(uid);
@@ -173,8 +171,9 @@ async function startGame({ uid }) {
       throw new HttpsError("failed-precondition", "Game not in waiting status.");
     }
 
-    // Optional: enforce only host can start
-    // if (game.hostUid && game.hostUid !== uid) throw new HttpsError("permission-denied", "Only host can start.");
+    if (game.hostUid !== uid) {
+      throw new HttpsError("permission-denied", "Only the host can start the game.");
+    }
 
     tx.update(gameRef, {
       status: "active",
@@ -192,12 +191,12 @@ async function startGame({ uid }) {
   return { ok: true };
 }
 
-async function tickGame(arg) {
-  // support tickGame("id") and tickGame({ gameId: "id" })
-  const gameId = typeof arg === "string" ? arg : arg?.gameId;
-
+async function tickGame({ uid, gameId }) {
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Must be signed in.");
+  }
   if (typeof gameId !== "string" || gameId.trim() === "") {
-    throw new Error(`tickGame: invalid gameId: ${JSON.stringify(gameId)}`);
+    throw new HttpsError("invalid-argument", "A valid gameId is required.");
   }
 
   logger.log("Ticking game", gameId);
@@ -207,10 +206,16 @@ async function tickGame(arg) {
   return db.runTransaction(async (tx) => {
     // READS
     const gameSnap = await tx.get(gameRef);
-    if (!gameSnap.exists) throw new Error("Game not found");
+    if (!gameSnap.exists) throw new HttpsError("not-found", "Game not found.");
 
     const game = { id: gameSnap.id, ...gameSnap.data() };
-    if (!game.type) throw new Error(`Game ${gameId} missing "type"`);
+    if (game.hostUid !== uid) {
+      throw new HttpsError("permission-denied", "Only the host can advance the game.");
+    }
+    if (game.status !== "active") {
+      throw new HttpsError("failed-precondition", "Game is not active.");
+    }
+    if (!game.type) throw new HttpsError("failed-precondition", `Game ${gameId} is missing its type.`);
 
     const impl = getGameImpl(game.type);
 

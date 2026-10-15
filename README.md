@@ -32,9 +32,9 @@ A real-time, team-based trading simulation platform that combines elements of pr
 
 ### Prerequisites
 
-- Node.js (v16+)
+- Node.js 22.17 or newer (the committed `.nvmrc` selects Node 22)
 - npm or yarn
-- Firebase CLI (if deploying)
+- Firebase access for the `qtav-4b519` project (the CLI is installed with the project)
 
 ### Installation
 
@@ -75,9 +75,25 @@ qtav/
 │   ├── lib/           # Utility functions and libraries
 │   ├── routes/        # Application routes
 │   └── styles/        # Global styles and Tailwind config
-├── public/            # Static assets
+├── static/            # Static assets
 └── functions/         # Firebase Cloud Functions
 ```
+
+## Deploying
+
+Use the committed Node version and lockfiles before deploying:
+
+```bash
+nvm install
+nvm use
+npm ci
+npm --prefix functions ci
+npm run deploy
+```
+
+Firebase runs the production web build and the Functions test suite as predeploy checks. Hosting is a static single-page app, while game mutations run through authenticated Cloud Functions.
+
+The first deployment after the static-hosting migration replaces the old SvelteKit SSR rewrite. After verifying the live site, the legacy `ssrqtav4b519` function can be removed with `npm exec firebase -- functions:delete ssrqtav4b519 --region us-east1` to avoid retaining an unused function.
 
 ## 📬 Contact
 

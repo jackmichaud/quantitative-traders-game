@@ -1,7 +1,7 @@
 <script>
   import "../app.css";
   import { onMount } from "svelte";
-  import { browser } from "$app/environment";
+  import { browser } from "$app/env";
 
   import { auth, db } from "../lib/firebase/firebase.client";
   import { authStore } from "../stores/authStore";
