@@ -100,6 +100,49 @@ To deploy select functions:
 firebase deploy --only functions:createGame,functions:joinGame
 ```
 
+## Administrator access
+
+Administrator authorization is stored as a Firebase Authentication custom
+claim, not in Firestore. Only run the claim-management command from a trusted
+machine with Firebase Admin credentials. For local use, set
+`GOOGLE_APPLICATION_CREDENTIALS` to a service-account key file or authenticate
+with Application Default Credentials.
+
+To configure local Application Default Credentials using your Google account:
+
+```bash
+gcloud auth application-default login
+gcloud auth application-default set-quota-project qtav-4b519
+```
+
+The account must have permission to manage Firebase Authentication users and
+the `serviceusage.services.use` permission on the quota project.
+
+Grant administrator access by email address or Firebase Auth UID:
+
+```bash
+cd functions
+nvm use 22
+npm run admin:set -- person@example.com grant
+```
+
+If Application Default Credentials cannot infer the Firebase project, provide
+it explicitly:
+
+```bash
+npm run admin:set -- person@example.com grant --project qtav-4b519
+```
+
+Revoke it with:
+
+```bash
+npm run admin:set -- person@example.com revoke
+```
+
+The user should sign out and back in after a change so their ID token contains
+the updated claim. Game creation is independently enforced by the callable
+Cloud Function; the client-side claim check only controls navbar visibility.
+
 ## TODO
 
 - [ ] Add more games

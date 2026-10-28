@@ -67,8 +67,7 @@
             <!--In Game-->
             <button on:click={() => showModal = "leave"} class="mr-4 text-lg border p-2 rounded-md hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Leave game</button>
 
-            <!--Admin only TODO: make this a proper admin check-->
-            {#if $authStore.currentUser.uid === "66Q8I5XwY0TChOmSUWoYM5nEaB32"}
+            {#if $authStore.isAdmin}
                 <button on:click={start} class="mr-4 text-lg border p-2 rounded-md hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Start game</button>
             {/if}
 
@@ -88,8 +87,7 @@
                 </Modal>
             {/if}
 
-            <!-- Make sure this only appears if uid is a certain value-->
-            {#if $authStore.currentUser.uid === "66Q8I5XwY0TChOmSUWoYM5nEaB32"}
+            {#if $authStore.isAdmin}
                 <button on:click={() => showModal = "create"} class="mr-4 text-lg border p-2 rounded-md hover:bg-white hover:text-slate-700 hover:scale-105 hover:shadow-lg transform transition-transform duration-150">Create game</button>
                 
                 <!-- <button on:click={recalculate} class="mr-4 text-lg border p-2 rounded-md">Recalculate</button> -->

@@ -1,5 +1,5 @@
 const { onCall } = require("firebase-functions/v2/https");
-const { requireAuth, isAdmin } = require("../utils/auth");
+const { requireAuth, requireAdmin } = require("../utils/auth");
 const { toHttpsError } = require("../utils/errors");
 const { requireString } = require("../utils/validate");
 const { db } = require("../admin");
@@ -14,7 +14,7 @@ exports.createGame = onCall(async (req) => {
   log("Creating game with data:", req.data);
   
   try {
-    const uid = requireAuth(req);
+    const uid = requireAdmin(req);
     const type = requireString(req.data.type, "type");
     const season = req.data.season ?? null;
     const visibility = req.data.visibility ?? "unofficial";
@@ -23,7 +23,7 @@ exports.createGame = onCall(async (req) => {
       type,
       season,
       visibility,
-      canCreateOfficial: isAdmin(req),
+      canCreateOfficial: true,
     });
   } catch (e) {
     throw toHttpsError(e);

@@ -5,6 +5,7 @@ import { createUserWithEmailAndPassword, updatePassword, signOut, sendPasswordRe
 export const authStore = writable({
     isLoading: true,
     currentUser: null,
+    isAdmin: false,
     currentGame: {gameID: null, teamName: null}
 });
 

@@ -13,19 +13,36 @@
 
   onMount(() => {
     let userDocUnsub = null;
+    let authEvent = 0;
 
-    const authUnsub = auth.onAuthStateChanged((user) => {
+    const authUnsub = auth.onIdTokenChanged(async (user) => {
+      const currentAuthEvent = ++authEvent;
+
       // stop previous user listener
       if (userDocUnsub) {
         userDocUnsub();
         userDocUnsub = null;
       }
 
-      // Always update user + loading first
+      let isAdmin = false;
+      if (user) {
+        try {
+          const token = await user.getIdTokenResult();
+          isAdmin = token.claims.admin === true;
+        } catch (error) {
+          console.error("Unable to read authentication claims:", error);
+        }
+      }
+
+      // Ignore a stale token lookup if the user changed while it was pending.
+      if (currentAuthEvent !== authEvent) return;
+
+      // The claim only controls presentation here. Cloud Functions enforce it.
       authStore.update((current) => ({
         ...current,
         isLoading: false,
         currentUser: user,
+        isAdmin,
         currentGame: null
       }));
 
@@ -57,6 +74,6 @@
 </script>
 
 <NavBar />
-<body class="bg-slate-400">
+<main class="bg-slate-400 min-h-screen">
   <slot />
-</body>
+</main>
